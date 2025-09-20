@@ -32,6 +32,11 @@
 			path = Kolokol;
 			sourceTree = "<group>";
 		};
+		F3FC99FD2E7EEDD800FE1D90 /* Config */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Config;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,6 +53,7 @@
 		AE773B402E7ECD1000E432E1 = {
 			isa = PBXGroup;
 			children = (
+				F3FC99FD2E7EEDD800FE1D90 /* Config */,
 				AE773B4B2E7ECD1000E432E1 /* Kolokol */,
 				AE773B4A2E7ECD1000E432E1 /* Products */,
 			);
@@ -78,6 +84,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				AE773B4B2E7ECD1000E432E1 /* Kolokol */,
+				F3FC99FD2E7EEDD800FE1D90 /* Config */,
 			);
 			name = Kolokol;
 			packageProductDependencies = (
@@ -143,12 +150,14 @@
 /* Begin XCBuildConfiguration section */
 		AE773B5D2E7ECD1100E432E1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = F3FC99FD2E7EEDD800FE1D90 /* Config */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = J7GVT955FJ;
+				DEVELOPMENT_TEAM = FUD5CPHJR9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Kolokol/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -170,12 +179,14 @@
 		};
 		AE773B5E2E7ECD1100E432E1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = F3FC99FD2E7EEDD800FE1D90 /* Config */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = J7GVT955FJ;
+				DEVELOPMENT_TEAM = FUD5CPHJR9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Kolokol/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -197,6 +208,8 @@
 		};
 		AE773B5F2E7ECD1100E432E1 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = F3FC99FD2E7EEDD800FE1D90 /* Config */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -261,6 +274,8 @@
 		};
 		AE773B602E7ECD1100E432E1 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = F3FC99FD2E7EEDD800FE1D90 /* Config */;
+			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
