@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 
 protocol NetworkServiceProtocol {
     func request<T: Decodable>(
@@ -14,19 +13,9 @@ protocol NetworkServiceProtocol {
         method: HTTPMethod,
         queryItems: [URLQueryItem]?,
         body: [String: Any]?,
-        shouldCache: Bool,
-        completion: @escaping (Result<T, NetworkError>) -> Void
-    )
-    
-    func requestWithBearer<T: Decodable>(
-        endpoint: String,
-        method: HTTPMethod,
-        queryItems: [URLQueryItem]?,
-        body: [String: Any]?,
-        bearerToken: String,
-        shouldCache: Bool,
-        completion: @escaping (Result<T, NetworkError>) -> Void
-    )
+        headers: [String: String]?,
+        shouldCache: Bool
+    ) async -> Result<T, NetworkError>
 }
 
 final class NetworkService: NetworkServiceProtocol {
@@ -47,7 +36,8 @@ final class NetworkService: NetworkServiceProtocol {
         endpoint: String,
         method: HTTPMethod,
         queryItems: [URLQueryItem]?,
-        body: [String: Any]?
+        body: [String: Any]?,
+        headers: [String: String]?
     ) -> URLRequest? {
         var urlComponents = URLComponents(string: baseURL + endpoint)
         urlComponents?.queryItems = queryItems
@@ -56,6 +46,10 @@ final class NetworkService: NetworkServiceProtocol {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        headers?.forEach { key, value in
+            request.setValue(value, forHTTPHeaderField: key)
+        }
         
         if let body = body {
             do {
@@ -66,192 +60,85 @@ final class NetworkService: NetworkServiceProtocol {
         }
         return request
     }
-
+    
     // MARK: - Логика кэширования
     private func cachedData(for request: URLRequest) -> Data? {
         guard let urlString = request.url?.absoluteString else { return nil }
-        let cacheKey = urlString as NSString
-        return cache.object(forKey: cacheKey) as Data?
+        return cache.object(forKey: urlString as NSString) as Data?
     }
-
+    
     private func cache(data: Data, for request: URLRequest) {
         guard let urlString = request.url?.absoluteString else { return }
-        let cacheKey = urlString as NSString
-        cache.setObject(data as NSData, forKey: cacheKey)
+        cache.setObject(data as NSData, forKey: urlString as NSString)
     }
-
-    // MARK: - Обработка ответа
-    private func processResponse<T: Decodable>(
-        data: Data?,
-        response: URLResponse?,
-        error: Error?,
-        for request: URLRequest,
-        method: HTTPMethod,
-        shouldCache: Bool,
-        completion: @escaping (Result<T, NetworkError>) -> Void
-    ) {
-        DispatchQueue.main.async {
-            if let error = error {
-                completion(.failure(.unknown(message: error.localizedDescription)))
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                completion(.failure(.unknown(message: "No HTTP response")))
-                return
-            }
-            
-            // Если нет данных вовсе — это отдельная ошибка
-            guard let data = data else {
-                completion(.failure(.noData))
-                return
-            }
-            
-            // Кэшируем только успешные GET 2xx
-            if method == .get && shouldCache && (200...299).contains(httpResponse.statusCode) {
-                self.cache(data: data, for: request)
-            }
-            
-            // Маппинг ошибок по статус-коду
-            if !(200...299).contains(httpResponse.statusCode) {
-                switch httpResponse.statusCode {
-                case 400:
-                    if let str = String(data: data, encoding: .utf8), !str.isEmpty {
-                        completion(.failure(NetworkError(message: str) ?? .unknown(message: "UnknownError")))
-                    } else {
-                        completion(.failure(.unknown(message: "UnknownError")))
-                    }
-                case 403:
-                    completion(.failure(.forbidden))
-                case 404:
-                    completion(.failure(.notFound))
-                case 500...599:
-                    completion(.failure(.internalServerError))
-                default:
-                    completion(.failure(.unknown(message: "UnknownError")))
-                }
-                return
-            }
-            
-            do {
-                guard !data.isEmpty else {
-                    completion(.failure(.noData))
-                    return
-                }
-                let decoded = try JSONDecoder().decode(T.self, from: data)
-                completion(.success(decoded))
-            } catch {
-                completion(.failure(.decodingError))
-            }
-        }
-    }
-
+    
     // MARK: - Основной метод запроса
     func request<T: Decodable>(
         endpoint: String,
         method: HTTPMethod,
-        queryItems: [URLQueryItem]?,
-        body: [String: Any]?,
-        shouldCache: Bool = true,
-        completion: @escaping (Result<T, NetworkError>) -> Void
-    ) {
-        guard let request = prepareRequest(endpoint: endpoint, method: method, queryItems: queryItems, body: body) else {
-            completion(.failure(.invalidURL))
-            return
-        }
+        queryItems: [URLQueryItem]? = nil,
+        body: [String: Any]? = nil,
+        headers: [String: String]? = nil,
+        shouldCache: Bool = true
+    ) async -> Result<T, NetworkError> {
         
-        if method == .get && shouldCache, let cachedData = cachedData(for: request) {
-            do {
-                let decodedData = try JSONDecoder().decode(T.self, from: cachedData)
-                completion(.success(decodedData))
-            } catch {
-                completion(.failure(.decodingError))
-            }
-            return
-        }
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            self.processResponse(
-                data: data,
-                response: response,
-                error: error,
-                for: request,
-                method: method,
-                shouldCache: shouldCache,
-                completion: completion
-            )
-        }
-        .resume()
-    }
-    
-    // MARK: - Запрос с Bearer
-    private func prepareRequestWithBearer(
-        endpoint: String,
-        method: HTTPMethod,
-        queryItems: [URLQueryItem]?,
-        body: [String: Any]?,
-        bearerToken: String
-    ) -> URLRequest? {
-        var urlComponents = URLComponents(string: baseURL + endpoint)
-        urlComponents?.queryItems = queryItems
-        guard let url = urlComponents?.url else { return nil }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        
-        if let body = body {
-            do {
-                request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
-            } catch {
-                return nil
-            }
-        }
-        return request
-    }
-
-    func requestWithBearer<T: Decodable>(
-        endpoint: String,
-        method: HTTPMethod,
-        queryItems: [URLQueryItem]?,
-        body: [String: Any]?,
-        bearerToken: String,
-        shouldCache: Bool = true,
-        completion: @escaping (Result<T, NetworkError>) -> Void
-    ) {
-        guard let request = prepareRequestWithBearer(
+        guard let request = prepareRequest(
             endpoint: endpoint,
             method: method,
             queryItems: queryItems,
             body: body,
-            bearerToken: bearerToken
+            headers: headers
         ) else {
-            completion(.failure(.invalidURL))
-            return
+            return .failure(.invalidURL)
         }
         
+        // Проверяем кэш
         if method == .get && shouldCache, let cachedData = cachedData(for: request) {
             do {
                 let decodedData = try JSONDecoder().decode(T.self, from: cachedData)
-                completion(.success(decodedData))
+                return .success(decodedData)
             } catch {
-                completion(.failure(.decodingError))
+                return .failure(.decodingError)
             }
-            return
         }
         
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            self.processResponse(
-                data: data,
-                response: response,
-                error: error,
-                for: request,
-                method: method,
-                shouldCache: shouldCache,
-                completion: completion
-            )
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                return .failure(.unknown(message: "No HTTP response"))
+            }
+            
+            // Проверка ошибок по статус-кодам
+            guard (200...299).contains(httpResponse.statusCode) else {
+                switch httpResponse.statusCode {
+                case 400:
+                    if let str = String(data: data, encoding: .utf8), !str.isEmpty {
+                        return .failure(NetworkError(message: str) ?? .unknown(message: "UnknownError"))
+                    } else {
+                        return .failure(.unknown(message: "UnknownError"))
+                    }
+                case 403: return .failure(.forbidden)
+                case 404: return .failure(.notFound)
+                case 500...599: return .failure(.internalServerError)
+                default: return .failure(.unknown(message: "UnknownError"))
+                }
+            }
+            
+            guard !data.isEmpty else {
+                return .failure(.noData)
+            }
+            
+            // Кэшируем успешные GET
+            if method == .get && shouldCache {
+                cache(data: data, for: request)
+            }
+            
+            let decoded = try JSONDecoder().decode(T.self, from: data)
+            return .success(decoded)
+            
+        } catch {
+            return .failure(.unknown(message: error.localizedDescription))
         }
-        .resume()
     }
 }
