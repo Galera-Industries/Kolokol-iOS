@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F3E058712E806C2800B600DA /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = F3E058702E806C2800B600DA /* Starscream */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		AE773B492E7ECD1000E432E1 /* Kolokol.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kolokol.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -39,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F3E058712E806C2800B600DA /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +86,7 @@
 			);
 			name = Kolokol;
 			packageProductDependencies = (
+				F3E058702E806C2800B600DA /* Starscream */,
 			);
 			productName = Kolokol;
 			productReference = AE773B492E7ECD1000E432E1 /* Kolokol.app */;
@@ -110,6 +116,9 @@
 			);
 			mainGroup = AE773B402E7ECD1000E432E1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F3E0586F2E806C2800B600DA /* XCRemoteSwiftPackageReference "Starscream" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AE773B4A2E7ECD1000E432E1 /* Products */;
 			projectDirPath = "";
@@ -348,6 +357,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F3E0586F2E806C2800B600DA /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.8;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F3E058702E806C2800B600DA /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F3E0586F2E806C2800B600DA /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = AE773B412E7ECD1000E432E1 /* Project object */;
 }
