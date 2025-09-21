@@ -16,7 +16,7 @@ final class CodeEnteringViewController: UIViewController, CodeEnteringViewProtoc
     private var digitsStackView: UIStackView = UIStackView()
     private let sendCodeAgainButton: UIButton = UIButton(type: .system)
     private var countdownTimer: Timer?
-    let timerDuration: TimeInterval = 5.0
+    let timerDuration: TimeInterval = 60.0
     var remainingTime: TimeInterval = 0
     private var textFields: [UITextField] = []
     

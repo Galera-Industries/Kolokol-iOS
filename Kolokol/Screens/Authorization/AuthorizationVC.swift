@@ -132,7 +132,8 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     
     @objc private func getCodeButtonPressed() {
         guard let email = emailTextField.text else { return }
-        presenter.sendEmailButtonPressed(withEmail: email)
+        let fullEmail = email + "@edu.hse.ru"
+        presenter.sendEmailButtonPressed(withEmail: fullEmail)
     }
 }
 
