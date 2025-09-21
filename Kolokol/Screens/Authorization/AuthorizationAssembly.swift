@@ -9,7 +9,7 @@ import UIKit
 
 enum AuthorizationAssembly {
     static func build() -> UIViewController {
-        let view = AuthorizationView()
+        let view = AuthorizationViewController()
         let model = AuthorizationModel()
         let presenter = AuthorizationPresenter(view: view, model: model)
         view.presenter = presenter

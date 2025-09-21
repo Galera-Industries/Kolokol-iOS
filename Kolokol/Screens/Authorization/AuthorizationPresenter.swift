@@ -19,7 +19,7 @@ final class AuthorizationPresenter: AuthorizationPresenterProtocol {
     func sendEmailButtonPressed(withEmail email: String) {
         Task {
             do {
-                let otpRequest = OtpRequest(email: email)
+                let otpRequest = OTPRequest(email: email)
                 let data = try await model.sendOtpRequest(otpRequest)
                 
                 await MainActor.run {

@@ -8,8 +8,8 @@
 import Foundation
 
 protocol AuthorizationModelProtocol {
-    func sendOtpRequest(_ request: OtpRequest) async throws -> OtpResponse
-    func sendOtpConfirmationRequest(_ request: ConfirmOtpResponse) async throws -> ConfirmOtpResponse
+    func sendOtpRequest(_ request: OTPRequest) async throws -> OTPResponse
+    func sendOtpConfirmationRequest(_ request: ConfirmOTPRequest) async throws -> ConfirmOTPResponse
 }
 
 protocol AuthorizationViewProtocol: AnyObject {
