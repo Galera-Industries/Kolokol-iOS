@@ -25,9 +25,10 @@ final class NetworkService: NetworkServiceProtocol {
     private let cache = NSCache<NSString, NSData>()
     
     private init() {
-        guard let baseURLString = Bundle.main.object(forInfoDictionaryKey: "BASE_URL") as? String else {
-            fatalError("BASE_URL is not set in Info.plist!")
-        }
+//        guard let baseURLString = Bundle.main.object(forInfoDictionaryKey: "BASE_URL") as? String else {
+//            fatalError("BASE_URL is not set in Info.plist!")
+//        }
+        let baseURLString = "http://158.160.183.50:8080"
         self.baseURL = baseURLString
     }
     
@@ -134,7 +135,9 @@ final class NetworkService: NetworkServiceProtocol {
                 cache(data: data, for: request)
             }
             
-            let decoded = try JSONDecoder().decode(T.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let decoded = try decoder.decode(T.self, from: data)
             return decoded
             
         } catch {

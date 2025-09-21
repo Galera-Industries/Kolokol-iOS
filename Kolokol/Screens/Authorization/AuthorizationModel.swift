@@ -12,10 +12,5 @@ final class AuthorizationModel: AuthorizationModelProtocol {
         let response: OTPResponse = try await NetworkService.shared.request(endpoint: Endpoints.authOtpRequest.rawValue, method: .post, body: request)
         return response
     }
-    
-    func sendOtpConfirmationRequest(_ request: ConfirmOTPRequest) async throws -> ConfirmOTPResponse {
-        let response: ConfirmOTPResponse = try await NetworkService.shared.request(endpoint: Endpoints.authOtpConfirm.rawValue, method: .post, body: request)
-        return response
-    }
 }
 

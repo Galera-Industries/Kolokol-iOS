@@ -1,0 +1,12 @@
+//
+//  Config.xcconfig
+//  Kolokol
+//
+//  Created by Кирилл Исаев on 21.09.2025.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+BASE_URL=http:/158.160.183.50
+BASE_IP=158.160.183.50
+BASE_PORT=8080
