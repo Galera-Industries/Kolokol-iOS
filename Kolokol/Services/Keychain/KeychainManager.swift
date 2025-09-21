@@ -9,7 +9,8 @@ import Foundation
 
 final class KeychainManager: KeychainManagerProtocol {
     
-    static let keyForSaveRegToken: String = "regToke"
+    static let keyForSaveRegToken: String = "regToken"
+    static let keyForSaveEmail: String = "email"
     static let keyForSaveAccessToken: String = "accessToken"
     static let keyForSaveRefreshToken: String = "refreshToken"
     

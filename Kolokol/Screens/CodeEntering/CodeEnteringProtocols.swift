@@ -9,13 +9,15 @@ import Foundation
 
 protocol CodeEnteringModelProtocol {
     func sendOtpConfirmationRequest(_ request: ConfirmOTPRequest) async throws -> ConfirmOTPResponse
+    func sendConfirmationCodeAgainRequest(_ request: OTPRequest) async throws -> OTPResponse
 }
 
 protocol CodeEnteringViewProtocol: AnyObject {
     func showError(_ error: String)
-    func routeNext(_ isStudent: Bool)
+    func routeNext(_ isCompleted: Bool)
 }
 
 protocol CodeEnteringPresenterProtocol {
     func textFieldFilled(withStringCode stringCode: String)
+    func sendCodePressed()
 }

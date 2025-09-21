@@ -11,7 +11,8 @@ enum AuthorizationAssembly {
     static func build() -> UIViewController {
         let view = AuthorizationViewController()
         let model = AuthorizationModel()
-        let presenter = AuthorizationPresenter(view: view, model: model)
+        let keychain = KeychainManager()
+        let presenter = AuthorizationPresenter(view: view, model: model, keychain: keychain)
         view.presenter = presenter
         return view
     }

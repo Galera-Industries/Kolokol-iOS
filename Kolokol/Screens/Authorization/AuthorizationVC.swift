@@ -27,7 +27,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     }
     
     func routeNext() {
-        // navigationController?.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+        navigationController?.pushViewController(CodeEnteringAssembly.build(), animated: true)
     }
     
     
@@ -51,7 +51,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     private func configureTitleLabel() {
         view.addSubview(titleLabel)
         titleLabel.text = "Kollocol"
-        titleLabel.textColor = .lightGray
+        titleLabel.textColor = Colors.textSecondary
         titleLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         titleLabel.textAlignment = .center
         titleLabel.pinTop(view.safeAreaLayoutGuide.topAnchor, 16)
@@ -76,7 +76,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     
     private func configureEmailTextField() {
         emailTextField.delegate = self
-        emailTextField.textColor = .white
+        emailTextField.textColor = Colors.textPrimary
         emailTextField.font = UIFont(name: "TTCommons-DemiBold", size: 40)
         emailTextField.tintColor = .white
         emailTextField.minimumFontSize = 14
@@ -92,7 +92,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     private func configureEmailLabel() {
         view.addSubview(emailLabel)
         emailLabel.text = "Email"
-        emailLabel.textColor = .lightGray
+        emailLabel.textColor = Colors.textSecondary
         emailLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         emailLabel.textAlignment = .center
         emailLabel.pinBottom(emailStackView.topAnchor, 8)
@@ -101,7 +101,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     
     private func configureDomainLabel() {
         domainLabel.text = "@edu.hse.ru"
-        domainLabel.textColor = .lightGray
+        domainLabel.textColor = Colors.textSecondary
         domainLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         domainLabel.adjustsFontSizeToFitWidth = true
         domainLabel.minimumScaleFactor = 0.5
@@ -114,18 +114,25 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     private func configureGetCodeButton() {
         view.addSubview(getCodeButton)
         getCodeButton.setTitle("Получить код", for: .normal)
-        getCodeButton.setTitleColor(.white, for: .normal)
-        getCodeButton.backgroundColor = UIColor(white: 0.1, alpha: 1.0)
+        getCodeButton.setTitleColor(Colors.textPrimary, for: .normal)
+        getCodeButton.backgroundColor = Colors.surfacePrimary
         getCodeButton.titleLabel?.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         getCodeButton.layer.cornerRadius = 32
         getCodeButton.pinBottom(view.safeAreaLayoutGuide.bottomAnchor, 20)
         getCodeButton.pinLeft(view.leadingAnchor, 16)
         getCodeButton.pinRight(view.trailingAnchor, 16)
         getCodeButton.setHeight(86)
+        
+        getCodeButton.addTarget(self, action: #selector(getCodeButtonPressed), for: .touchUpInside)
     }
 
     @objc private func handleDomainLabelTap() {
         emailTextField.becomeFirstResponder()
+    }
+    
+    @objc private func getCodeButtonPressed() {
+        guard let email = emailTextField.text else { return }
+        presenter.sendEmailButtonPressed(withEmail: email)
     }
 }
 
