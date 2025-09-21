@@ -1,0 +1,63 @@
+//
+//  CreateTestRequest.swift
+//  Kolokol
+//
+//  Created by Tom Tim on 21.09.2025.
+//
+
+import Foundation
+
+struct CreateTestRequest : Codable {
+    struct Question: Codable {
+        let type: QuestionType
+        let text: String
+        let imageUrl: URL?
+        let order: Int
+        let options: Options?
+        enum CodingKeys: String, CodingKey {
+            case type
+            case text
+            case imageUrl = "image_url"
+            case order
+            case options
+        }
+    }
+    
+    let title: String
+    let published: Bool
+    let deadlineAt: Date?
+    let ttl: Int?
+    let scoringMode: ScoringMode
+    let resultsPublished: Bool
+    let answersVisible: Bool
+    let questions: [Question]
+    
+    enum CodingKeys: String, CodingKey {
+        case title
+        case published
+        case deadlineAt = "deadline_at"
+        case ttl = "time_limit_sec"
+        case scoringMode = "scoring_mode"
+        case resultsPublished = "results_published"
+        case answersVisible = "answers_visible"
+        case questions
+    }
+}
+
+enum ScoringMode : Codable {
+    case equal
+    case weighted
+}
+
+struct Options: Codable {
+    let choices: [Choice]?
+    let correctIDs: [Int]?
+    let correctText: String?
+
+    enum CodingKeys: String, CodingKey {
+        case choices
+        case correctIDs = "correct_ids"
+        case correctText = "correct_text"
+    }
+}
+
