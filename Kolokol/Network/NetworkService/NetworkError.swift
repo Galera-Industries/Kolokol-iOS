@@ -27,7 +27,7 @@ enum NetworkError: LocalizedError {
     ]
     
     init?(message: String) {
-        if let mappedError = NetworkError.errorMapping[message] {
+        if let mappedError = NetworkError.errorMapping[message.trimmingCharacters(in: .whitespacesAndNewlines)] {
             self = mappedError
         } else {
             self = .unknown(message: message)
