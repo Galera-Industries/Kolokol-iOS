@@ -34,6 +34,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureBackground()
         configureUI()
     }
     
