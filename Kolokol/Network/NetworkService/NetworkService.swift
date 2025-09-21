@@ -115,7 +115,7 @@ final class NetworkService: NetworkServiceProtocol {
                 switch httpResponse.statusCode {
                 case 400:
                     if let str = String(data: data, encoding: .utf8), !str.isEmpty {
-                        throw NetworkError.unknown(message: str)
+                        throw NetworkError(message: str) ?? NetworkError.unknown(message: str)
                     } else {
                         throw NetworkError.unknown(message: "UnknownError")
                     }
