@@ -8,14 +8,14 @@
 import Foundation
 
 protocol NetworkServiceProtocol {
-    func request<T: Decodable>(
+    func request<T: Decodable, K: Codable>(
         endpoint: String,
         method: HTTPMethod,
         queryItems: [URLQueryItem]?,
-        body: [String: Any]?,
+        body: K?,
         headers: [String: String]?,
         shouldCache: Bool
-    ) async -> Result<T, NetworkError>
+    ) async throws -> T
 }
 
 final class NetworkService: NetworkServiceProtocol {
@@ -32,11 +32,11 @@ final class NetworkService: NetworkServiceProtocol {
     }
     
     // MARK: - Подготовка запроса
-    private func prepareRequest(
+    private func prepareRequest<K: Codable>(
         endpoint: String,
         method: HTTPMethod,
         queryItems: [URLQueryItem]?,
-        body: [String: Any]?,
+        body: K?,
         headers: [String: String]?
     ) -> URLRequest? {
         var urlComponents = URLComponents(string: baseURL + endpoint)
@@ -53,7 +53,7 @@ final class NetworkService: NetworkServiceProtocol {
         
         if let body = body {
             do {
-                request.httpBody = try JSONSerialization.data(withJSONObject: body, options: [])
+                request.httpBody = try JSONEncoder().encode(body)
             } catch {
                 return nil
             }
@@ -73,14 +73,14 @@ final class NetworkService: NetworkServiceProtocol {
     }
     
     // MARK: - Основной метод запроса
-    func request<T: Decodable>(
+    func request<T: Decodable, K: Codable>(
         endpoint: String,
         method: HTTPMethod,
         queryItems: [URLQueryItem]? = nil,
-        body: [String: Any]? = nil,
+        body: K? = nil,
         headers: [String: String]? = nil,
         shouldCache: Bool = true
-    ) async -> Result<T, NetworkError> {
+    ) async throws -> T {
         
         guard let request = prepareRequest(
             endpoint: endpoint,
@@ -89,16 +89,16 @@ final class NetworkService: NetworkServiceProtocol {
             body: body,
             headers: headers
         ) else {
-            return .failure(.invalidURL)
+            throw NetworkError.invalidURL
         }
         
         // Проверяем кэш
         if method == .get && shouldCache, let cachedData = cachedData(for: request) {
             do {
                 let decodedData = try JSONDecoder().decode(T.self, from: cachedData)
-                return .success(decodedData)
+                return decodedData
             } catch {
-                return .failure(.decodingError)
+                throw NetworkError.decodingError
             }
         }
         
@@ -106,7 +106,7 @@ final class NetworkService: NetworkServiceProtocol {
             let (data, response) = try await URLSession.shared.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                return .failure(.unknown(message: "No HTTP response"))
+                throw NetworkError.unknown(message: "No HTTP response")
             }
             
             // Проверка ошибок по статус-кодам
@@ -114,19 +114,19 @@ final class NetworkService: NetworkServiceProtocol {
                 switch httpResponse.statusCode {
                 case 400:
                     if let str = String(data: data, encoding: .utf8), !str.isEmpty {
-                        return .failure(NetworkError(message: str) ?? .unknown(message: "UnknownError"))
+                        throw NetworkError.unknown(message: str)
                     } else {
-                        return .failure(.unknown(message: "UnknownError"))
+                        throw NetworkError.unknown(message: "UnknownError")
                     }
-                case 403: return .failure(.forbidden)
-                case 404: return .failure(.notFound)
-                case 500...599: return .failure(.internalServerError)
-                default: return .failure(.unknown(message: "UnknownError"))
+                case 403: throw NetworkError.forbidden
+                case 404: throw NetworkError.notFound
+                case 500...599: throw NetworkError.internalServerError
+                default: throw NetworkError.unknown(message: "UnknownError")
                 }
             }
             
             guard !data.isEmpty else {
-                return .failure(.noData)
+                throw NetworkError.noData
             }
             
             // Кэшируем успешные GET
@@ -135,10 +135,10 @@ final class NetworkService: NetworkServiceProtocol {
             }
             
             let decoded = try JSONDecoder().decode(T.self, from: data)
-            return .success(decoded)
+            return decoded
             
         } catch {
-            return .failure(.unknown(message: error.localizedDescription))
+            throw NetworkError.unknown(message: error.localizedDescription)
         }
     }
 }

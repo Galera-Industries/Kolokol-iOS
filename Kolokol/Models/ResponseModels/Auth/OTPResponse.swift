@@ -8,7 +8,7 @@
 import Foundation
 
 // POST /auth/otp/request
-struct RequestOTPResponse : Codable {
+struct OTPResponse : Codable {
     let email: String
     let regToken: UUID
     let expiresAt: Date
