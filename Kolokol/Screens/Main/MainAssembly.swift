@@ -12,7 +12,8 @@ enum MainAssembly {
         let view = MainViewController()
         let model = MainModel()
         let keychain = KeychainManager()
-        let presenter = MainPresenter(view: view, model: model, keychain: keychain)
+        let userDefaults = UserDefaultsManager()
+        let presenter = MainPresenter(view: view, model: model, keychain: keychain, userDefaults: userDefaults)
         view.presenter = presenter
         return view
     }

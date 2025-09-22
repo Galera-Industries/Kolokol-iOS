@@ -36,7 +36,6 @@ final class MainViewController: UIViewController, MainViewProtocol {
 
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ульяна" // TODO: - Брать имя из UD
         label.textColor = Colors.textPrimary
         label.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         label.textAlignment = .left
@@ -46,7 +45,6 @@ final class MainViewController: UIViewController, MainViewProtocol {
 
     private lazy var emailLabel: UILabel = {
         let label = UILabel()
-        label.text = "udeskova@edu.hse.ru" // TODO: - Брать почту из UD
         label.textColor = Colors.textSecondary
         label.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         label.textAlignment = .left
@@ -122,6 +120,8 @@ final class MainViewController: UIViewController, MainViewProtocol {
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.setHidesBackButton(true, animated: true)
+        presenter.viewLoaded()
         configureMainBackground()
         configureConstraints()
         configureCodeField()
@@ -151,7 +151,14 @@ final class MainViewController: UIViewController, MainViewProtocol {
             self.codeField.setFocusToFirstField()
         }
     }
-
+    
+    // MARK: - Public Methods
+    func setCredentials(_ credentials: Credentials, _ email: String) {
+        nameLabel.text = credentials.name
+        emailLabel.text = email
+    }
+    
+    
     // MARK: - Private Methods
     private func configureConstraints() {
         // titleLabel
