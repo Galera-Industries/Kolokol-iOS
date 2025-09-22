@@ -8,8 +8,7 @@
 import Foundation
 
 protocol CredentialsModelProtocol {
-    @discardableResult
-    func saveCredentials(_ name: String, _ userName: String, _ tgshka: String) -> Bool
+    func saveCredentials(_ credentials: Credentials)
 }
 
 protocol CredentialsPresenterProtocol {

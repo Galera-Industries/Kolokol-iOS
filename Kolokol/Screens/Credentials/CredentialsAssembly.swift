@@ -10,7 +10,8 @@ import UIKit
 enum CredentialsAssembly {
     static func build() -> UIViewController {
         let view = CredentialsViewController()
-        let model = CredentialsModel()
+        let userDefaults = UserDefaultsManager()
+        let model = CredentialsModel(userDefaults: userDefaults)
         let presenter = CredentialsPresenter(view: view, model: model)
         view.presenter = presenter
         return view

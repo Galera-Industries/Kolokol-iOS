@@ -8,9 +8,13 @@
 import Foundation
 
 final class CredentialsModel: CredentialsModelProtocol {
-    @discardableResult
-    func saveCredentials(_ name: String, _ userName: String, _ tgshka: String) -> Bool {
-        // saving in user defaults
-        return true
+    var userDefaults: UserDefaultsProtocol
+    
+    init(userDefaults: UserDefaultsProtocol) {
+        self.userDefaults = userDefaults
+    }
+    
+    func saveCredentials(_ credentials: Credentials) {
+        userDefaults.saveCredentials(credentials)
     }
 }
