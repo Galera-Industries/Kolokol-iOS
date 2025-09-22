@@ -18,11 +18,11 @@ default_platform(:ios)
 platform :ios do
   desc "Building app for tests"
   lane :build do
-    gym(scheme: "Kollokol", configuration: "Release", export_method: "development, output_directory: "./build")
+    gym(scheme: "Kolokol", configuration: "Release", export_method: "development", output_directory: "./build")
   end
 
   desc "Testing app"
   lane :test do
-    scan(scheme: "Kollokol", clean: true, parallel_testing: true, concurrent_workers: 4)
+    scan(scheme: "Kolokol", clean: true, parallel_testing: true, concurrent_workers: 4)
   end
 end
