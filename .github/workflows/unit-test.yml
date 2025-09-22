@@ -63,7 +63,9 @@ jobs:
         run: bundle install    
 
       - name: Test
-        run: bundle exec fastlane test
+        run: |
+          bundle exec fastlane test
+          cat 'fastlane/test_output/report.junit'
      
       - name: Publish test results
         uses: dorny/test-reporter@v2
