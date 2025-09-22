@@ -23,6 +23,7 @@ platform :ios do
 
   desc "Testing app"
   lane :test do
-    scan(scheme: "Kolokol", clean: true, parallel_testing: false)
+    scan(scheme: "Kolokol", result_bundle: true, fail_build: false, output_types: "", clean: true, parallel_testing: false)
+    trainer(path: "fastlane/test_output", output_directory: "fastlane/test_output", extension: ".xml", fail_build: false)
   end
 end

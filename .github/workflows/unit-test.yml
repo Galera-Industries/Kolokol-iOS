@@ -65,12 +65,11 @@ jobs:
       - name: Test
         run: |
           bundle exec fastlane test
-          cat 'fastlane/test_output/report.junit'
      
       - name: Publish test results
         uses: dorny/test-reporter@v2
-        if: ${{ !cancelled() }}
+        if: success() || failure()
         with:
           name: Test Results
-          path: 'fastlane/test_output/*.junit'
+          path: 'fastlane/test_output/*.xml'
           reporter: jest-junit
