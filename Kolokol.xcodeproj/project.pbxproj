@@ -10,7 +10,18 @@
 		F3E058712E806C2800B600DA /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = F3E058702E806C2800B600DA /* Starscream */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		AA411CC92E81EAB400AF6E4D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AE773B412E7ECD1000E432E1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AE773B482E7ECD1000E432E1;
+			remoteInfo = Kolokol;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		AA411CB42E81E99400AF6E4D /* KolokolTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KolokolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AE773B492E7ECD1000E432E1 /* Kolokol.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kolokol.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -28,6 +39,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AA411CB52E81E99400AF6E4D /* KolokolTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = KolokolTests;
+			sourceTree = "<group>";
+		};
 		AE773B4B2E7ECD1000E432E1 /* Kolokol */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -39,6 +55,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AA411CB12E81E99400AF6E4D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE773B462E7ECD1000E432E1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -54,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				AE773B4B2E7ECD1000E432E1 /* Kolokol */,
+				AA411CB52E81E99400AF6E4D /* KolokolTests */,
 				AE773B4A2E7ECD1000E432E1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -62,6 +86,7 @@
 			isa = PBXGroup;
 			children = (
 				AE773B492E7ECD1000E432E1 /* Kolokol.app */,
+				AA411CB42E81E99400AF6E4D /* KolokolTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -69,6 +94,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		AA411CB32E81E99400AF6E4D /* KolokolTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA411CB82E81E99400AF6E4D /* Build configuration list for PBXNativeTarget "KolokolTests" */;
+			buildPhases = (
+				AA411CB02E81E99400AF6E4D /* Sources */,
+				AA411CB12E81E99400AF6E4D /* Frameworks */,
+				AA411CB22E81E99400AF6E4D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA411CCA2E81EAB400AF6E4D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				AA411CB52E81E99400AF6E4D /* KolokolTests */,
+			);
+			name = KolokolTests;
+			packageProductDependencies = (
+			);
+			productName = KolokolTests;
+			productReference = AA411CB42E81E99400AF6E4D /* KolokolTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		AE773B482E7ECD1000E432E1 /* Kolokol */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AE773B5C2E7ECD1100E432E1 /* Build configuration list for PBXNativeTarget "Kolokol" */;
@@ -99,9 +147,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 1630;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					AA411CB32E81E99400AF6E4D = {
+						CreatedOnToolsVersion = 16.3;
+						TestTargetID = AE773B482E7ECD1000E432E1;
+					};
 					AE773B482E7ECD1000E432E1 = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -125,11 +177,19 @@
 			projectRoot = "";
 			targets = (
 				AE773B482E7ECD1000E432E1 /* Kolokol */,
+				AA411CB32E81E99400AF6E4D /* KolokolTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AA411CB22E81E99400AF6E4D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE773B472E7ECD1000E432E1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -140,6 +200,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AA411CB02E81E99400AF6E4D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AE773B452E7ECD1000E432E1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -149,7 +216,61 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		AA411CCA2E81EAB400AF6E4D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AE773B482E7ECD1000E432E1 /* Kolokol */;
+			targetProxy = AA411CC92E81EAB400AF6E4D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		AA411CB92E81E99400AF6E4D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XQ5MGT6276;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = se.hse.Kolokoll;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kolokol.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kolokol";
+			};
+			name = Debug;
+		};
+		AA411CBA2E81E99400AF6E4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = XQ5MGT6276;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = se.hse.Kolokoll;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kolokol.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kolokol";
+			};
+			name = Release;
+		};
 		AE773B5D2E7ECD1100E432E1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = AE773B4B2E7ECD1000E432E1 /* Kolokol */;
@@ -338,6 +459,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AA411CB82E81E99400AF6E4D /* Build configuration list for PBXNativeTarget "KolokolTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA411CB92E81E99400AF6E4D /* Debug */,
+				AA411CBA2E81E99400AF6E4D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		AE773B442E7ECD1000E432E1 /* Build configuration list for PBXProject "Kolokol" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
