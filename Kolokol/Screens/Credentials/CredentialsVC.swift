@@ -191,6 +191,8 @@ final class CredentialsViewController: UIViewController {
               let tg = tgTextField.text else { return }
         if name.isEmpty || username.isEmpty || tg.isEmpty { return }
         presenter.saveButtonPressed(name, username, tg)
+        
+        navigationController?.pushViewController(MainAssembly.build(), animated: true)
     }
     
     @objc private func dismissKeyboard() {

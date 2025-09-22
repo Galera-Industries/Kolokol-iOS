@@ -12,9 +12,10 @@ protocol MainModelProtocol {
 }
 
 protocol MainViewProtocol: AnyObject {
-
+    func setCredentials(_ credentials: Credentials, _ email: String)
 }
 
 protocol MainPresenterProtocol {
+    func viewLoaded()
     var keychain: KeychainManagerProtocol { get }
 }
