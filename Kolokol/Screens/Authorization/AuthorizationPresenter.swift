@@ -19,49 +19,18 @@ final class AuthorizationPresenter: AuthorizationPresenterProtocol {
     }
     
     func sendEmailButtonPressed(withEmail email: String) {
+        view?.routeNext()
         Task {
             do {
                 let otpRequest = OTPRequest(email: email)
                 let data = try await model.sendOtpRequest(otpRequest)
                 _ = keychain.save(key: KeychainManager.keyForSaveRegToken, value: data.regToken)
                 _ = keychain.save(key: KeychainManager.keyForSaveEmail, value: data.email)
-                await MainActor.run {
-                    view?.routeNext()
-                }
                 
             } catch {
-                let mappedError = mapError(error)
-                
-                await MainActor.run {
-                    view?.showError(mappedError)
-                }
+                guard let error = error as? NetworkError else { return }
+                debugPrint(error.localizedDescription)
             }
-        }
-    }
-    
-    private func mapError(_ error: Error) -> String {
-        guard let networkError = error as? NetworkError else { return "Unknown error" }
-        switch networkError {
-        case .noData:
-            return "Bad input, try later"
-        case .decodingError:
-            return "Bad input, try later"
-        case .internalServerError:
-            return "Server error, please, try later"
-        case .unknown(let message):
-            if let message {
-                return message
-            } else {
-                return "Server error, please, try later"
-            }
-        case .forbidden:
-            return "You dont have access for this action"
-        case .notFound:
-            return "User with this email not found"
-        case .invalidURL:
-            return "Bad input, try later"
-        case .invalidCode:
-            return "Bad input, try later"
         }
     }
 }

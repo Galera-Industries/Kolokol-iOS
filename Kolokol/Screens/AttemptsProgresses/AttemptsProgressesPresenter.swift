@@ -10,19 +10,20 @@ import Foundation
 final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
     private weak var view: AttemptsView?
     private let testId: UUID
-    private let bearer: String
+    private let keychain: KeychainManagerProtocol
     
     private var itemsById: [UUID: AttemptDisplayItem] = [:]
     private var streamTask: Task<Void, Never>?
     
-    init(view: AttemptsView, testId: UUID, bearer: String) {
+    init(view: AttemptsView, testId: UUID, keychain: KeychainManagerProtocol) {
         self.view = view
         self.testId = testId
-        self.bearer = bearer
+        self.keychain = keychain
     }
     
     func attach() {
-        let stream = WebSocketService.shared.openTestProgressStream(testId: testId, bearer: bearer)
+        guard let bearer = keychain.getUUID(key: KeychainManager.keyForSaveAccessToken) else { return }
+        let stream = WebSocketService.shared.openTestProgressStream(testId: testId, bearer: bearer.uuidString)
         streamTask = Task { [weak self] in
             guard let self else { return }
             do {

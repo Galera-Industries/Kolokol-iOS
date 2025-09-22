@@ -15,15 +15,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView {
     
     private var itemsById: [UUID: AttemptDisplayItem] = [:]
     
-    private var presenter: AttemptsPresenterProtocol!
-    
-    // MARK: - Init
-    init(testId: UUID, bearer: String) {
-        super.init(nibName: nil, bundle: nil)
-        self.presenter = AttemptsProgressesPresenter(view: self, testId: testId, bearer: bearer)
-    }
-    
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    var presenter: AttemptsPresenterProtocol!
     
     
     // MARK: - Lifecycle
