@@ -16,5 +16,6 @@ final class CredentialsModel: CredentialsModelProtocol {
     
     func saveCredentials(_ credentials: Credentials) {
         userDefaults.saveCredentials(credentials)
+        debugPrint("Saved: \n\(credentials.name)\n\(credentials.username)\n\(credentials.tg)\n In UserDefaults")
     }
 }

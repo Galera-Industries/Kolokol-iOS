@@ -13,11 +13,10 @@ final class CredentialsViewController: UIViewController {
     
     private let titleLabel: UILabel = UILabel()
     private let greetingLabel: UILabel = UILabel()
-    private let nameTextField: UITextField = UITextField()
-    private let usernameTextField: UITextField = UITextField()
-    private let tgTextField: UITextField = UITextField()
-    private lazy var credentialsStackView:
-    UIStackView = UIStackView(arrangedSubviews: [nameTextField, usernameTextField, tgTextField])
+    private var nameTextField: UITextField = UITextField()
+    private var usernameTextField: UITextField = UITextField()
+    private var tgTextField: UITextField = UITextField()
+    private let saveButton: UIButton = UIButton(type: .system)
     
     
     override func viewDidLoad() {
@@ -25,14 +24,149 @@ final class CredentialsViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
+        navigationItem.setHidesBackButton(true, animated: true)
+        configureBackground()
         configureUI()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Task { @MainActor in
+            setFocusOn(nameTextField)
+        }
+    }
+    
     private func configureUI() {
-        
+        configureTitleLabel()
+        configureGreetingLabel()
+        configureNameTextField()
+        configureUsernameTextField()
+        configureTgTextField()
+        configureSaveButton()
+    }
+    
+    private func configureTitleLabel() {
+        view.addSubview(titleLabel)
+        titleLabel.text = "Kollocol"
+        titleLabel.textColor = Colors.textSecondary
+        titleLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        titleLabel.textAlignment = .center
+        titleLabel.pinTop(view.safeAreaLayoutGuide.topAnchor, 16)
+        titleLabel.pinCenterX(view.centerXAnchor)
+    }
+    
+    private func configureGreetingLabel() {
+        view.addSubview(greetingLabel)
+        greetingLabel.text = "Познакомимся"
+        greetingLabel.font = UIFont(name: "TTCommons-DemiBold", size: 40)
+        greetingLabel.textColor = Colors.textPrimary
+        greetingLabel.pinHorizontal(view, 16)
+        greetingLabel.pinTop(titleLabel.bottomAnchor, 26)
+        greetingLabel.setWidth(361)
+        greetingLabel.setHeight(46)
+    }
+    
+    private func configureNameTextField() {
+        nameTextField = createTextField("Имя")
+        nameTextField.pinHorizontal(view, 16)
+        nameTextField.pinTop(greetingLabel.bottomAnchor, 16)
+    }
+    
+    private func configureUsernameTextField() {
+        usernameTextField = createTextField("Фамилия")
+        usernameTextField.pinHorizontal(view, 16)
+        usernameTextField.pinTop(nameTextField.bottomAnchor, 0)
+    }
+    
+    private func configureTgTextField() {
+        tgTextField = createTextField("@Telegram")
+        tgTextField.pinHorizontal(view, 16)
+        tgTextField.pinTop(usernameTextField.bottomAnchor, 0)
+        tgTextField.accessibilityIdentifier = "tgTextField"
+    }
+    
+    private func configureSaveButton() {
+        view.addSubview(saveButton)
+        saveButton.setTitle("Далее", for: .normal)
+        saveButton.setTitleColor(Colors.textSecondary, for: .normal)
+        saveButton.backgroundColor = Colors.surfaceSecondary
+        saveButton.titleLabel?.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        saveButton.layer.cornerRadius = 32
+        saveButton.pinBottom(view.safeAreaLayoutGuide.bottomAnchor, 20)
+        saveButton.pinLeft(view.leadingAnchor, 16)
+        saveButton.pinRight(view.trailingAnchor, 16)
+        saveButton.setHeight(86)
+        saveButton.isEnabled = false
+        saveButton.addTarget(self, action: #selector(saveButtonPressed), for: .touchUpInside)
+    }
+    
+    private func createTextField(_ placeholder: String) -> UITextField {
+        let textField = UITextField()
+        view.addSubview(textField)
+        textField.delegate = self
+        textField.layer.cornerRadius = 32
+        textField.textColor = Colors.textPrimary
+        textField.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        textField.tintColor = .white
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        textField.textAlignment = .left
+        textField.returnKeyType = .done
+        textField.backgroundColor = Colors.surfaceSecondary
+        let paddingView: UIView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
+        textField.leftView = paddingView
+        textField.leftViewMode = .always
+        textField.setHeight(70)
+        textField.setWidth(361)
+        textField.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [.foregroundColor: Colors.textSecondary]
+        )
+        return textField
+    }
+    
+    private func setFocusOn(_ view: UIView) {
+        view.becomeFirstResponder()
+    }
+    
+    @objc private func saveButtonPressed() {
+        guard let name = nameTextField.text,
+              let username = usernameTextField.text,
+              let tg = tgTextField.text else { return }
+        if name.isEmpty || username.isEmpty || tg.isEmpty { return }
+        presenter.saveButtonPressed(name, username, tg)
     }
     
     @objc private func dismissKeyboard() {
         view.endEditing(true)
+    }
+}
+
+extension CredentialsViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let textIgnore = CharacterSet(charactersIn: "' '")
+        if string.rangeOfCharacter(from: textIgnore) != nil {
+            return false
+        }
+        if textField.accessibilityIdentifier == "tgTextField" {
+            if let text = textField.text {
+                if text.first != "@" {
+                    textField.text = "@" + text
+                }
+            }
+        }
+        return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if nameTextField.isFirstResponder {
+            setFocusOn(usernameTextField)
+        } else if usernameTextField.isFirstResponder {
+            setFocusOn(tgTextField)
+        } else {
+            dismissKeyboard()
+            saveButtonPressed()
+        }
+        return true
     }
 }
