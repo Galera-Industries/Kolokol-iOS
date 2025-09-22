@@ -169,6 +169,22 @@ final class CredentialsViewController: UIViewController {
         view.becomeFirstResponder()
     }
     
+    private func updateButton() {
+        guard let name = nameTextField.text,
+              let username = usernameTextField.text,
+              let tg = tgTextField.text else { return }
+        
+        if !name.isEmpty && !username.isEmpty && !tg.isEmpty && tg != "@" {
+            saveButton.isEnabled = true
+            saveButton.backgroundColor = Colors.surfacePrimary
+            saveButton.setTitleColor(Colors.textPrimary, for: .normal)
+        } else {
+            saveButton.isEnabled = false
+            saveButton.backgroundColor = Colors.surfaceSecondary
+            saveButton.setTitleColor(Colors.textSecondary, for: .normal)
+        }
+    }
+    
     @objc private func saveButtonPressed() {
         guard let name = nameTextField.text,
               let username = usernameTextField.text,
@@ -192,6 +208,7 @@ extension CredentialsViewController: UITextFieldDelegate {
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        updateButton()
         if textField.accessibilityIdentifier == "tgTextField" {
             if let text = textField.text {
                 if text.first != "@" {
@@ -199,6 +216,10 @@ extension CredentialsViewController: UITextFieldDelegate {
                 }
             }
         }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        updateButton()
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
