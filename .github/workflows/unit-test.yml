@@ -17,11 +17,6 @@ jobs:
   test:
     runs-on: macos-latest
     
-    strategy:
-      matrix:
-        device: ['iPhone 16 Pro', 'iPad Pro 13-inch (M4)', 'iPhone SE (3rd generation)']
-      fail-fast: false
-
     steps:
       - name: Check out for repository
         uses: actions/checkout@v5
