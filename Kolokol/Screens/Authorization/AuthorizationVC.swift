@@ -127,12 +127,24 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
         
         getCodeButton.addTarget(self, action: #selector(getCodeButtonPressed), for: .touchUpInside)
     }
+    
+    private func checkEmailCorrectness() -> Bool {
+        guard let email = emailTextField.text else { return false }
+        if email.isEmpty {
+            return false
+        }
+        if email.first == "." || email.first == "-" || email.first == "_" {
+            return false
+        }
+        return true
+    }
 
     @objc private func handleDomainLabelTap() {
         emailTextField.becomeFirstResponder()
     }
     
     @objc private func getCodeButtonPressed() {
+        if !checkEmailCorrectness() { showError("Input correct email!"); return }
         guard let email = emailTextField.text else { return }
         let fullEmail = email + "@edu.hse.ru"
         presenter.sendEmailButtonPressed(withEmail: fullEmail)
@@ -164,7 +176,11 @@ extension AuthorizationViewController: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        getCodeButtonPressed()
+        if checkEmailCorrectness() {
+            getCodeButtonPressed()
+        } else {
+            showError("Input correct email!")
+        }
         return true
     }
 }
