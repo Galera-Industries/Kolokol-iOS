@@ -23,6 +23,6 @@ platform :ios do
 
   desc "Testing app"
   lane :test do
-    scan(scheme: "Kolokol", clean: true, parallel_testing: true, concurrent_workers: 4)
+    scan(scheme: "Kolokol", clean: true, parallel_testing: false)
   end
 end
