@@ -11,7 +11,7 @@ final class CredentialsViewController: UIViewController {
     
     var presenter: CredentialsPresenterProtocol!
     
-    private var kolokol: UIImageView? = UIImageView()
+    private var kolokol: UIImageView = UIImageView()
     private let titleLabel: UILabel = UILabel()
     private let greetingLabel: UILabel = UILabel()
     private var nameTextField: UITextField = UITextField()
@@ -20,10 +20,10 @@ final class CredentialsViewController: UIViewController {
     private let saveButton: UIButton = UIButton(type: .system)
     
     /// Не ругайтесь, иначе не знаю как сделать
-    var greetingCenterXAnchor: NSLayoutConstraint!
-    var greetingCenterYAnchor: NSLayoutConstraint!
-    var greetingTopAnchor: NSLayoutConstraint!
-    var greetingLeadingAnchor: NSLayoutConstraint!
+    var greetingCenterXAnchor: NSLayoutConstraint?
+    var greetingCenterYAnchor: NSLayoutConstraint?
+    var greetingTopAnchor: NSLayoutConstraint?
+    var greetingLeadingAnchor: NSLayoutConstraint?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,6 +46,10 @@ final class CredentialsViewController: UIViewController {
         configureTitleLabel()
         configureGreetingLabel()
         configureKolokol()
+        configureNameTextField()
+        configureUsernameTextField()
+        configureTgTextField()
+        configureSaveButton()
     }
     
     private func configureTitleLabel() {
@@ -63,40 +67,38 @@ final class CredentialsViewController: UIViewController {
         greetingLabel.font = UIFont(name: "TTCommons-DemiBold", size: 40)
         greetingLabel.textColor = Colors.textPrimary
         greetingCenterXAnchor = greetingLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-        greetingCenterXAnchor.isActive = true
+        greetingCenterXAnchor?.isActive = true
         greetingCenterYAnchor = greetingLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        greetingCenterYAnchor.isActive = true
+        greetingCenterYAnchor?.isActive = true
         greetingTopAnchor = greetingLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16)
-        greetingTopAnchor.isActive = false
+        greetingTopAnchor?.isActive = false
         greetingLeadingAnchor = greetingLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
-        greetingLeadingAnchor.isActive = false
+        greetingLeadingAnchor?.isActive = false
         greetingLabel.textAlignment = .center
         greetingLabel.setWidth(290)
         greetingLabel.setHeight(46)
     }
     
     private func configureKolokol() {
-        view.addSubview(kolokol!)
-        kolokol?.image = UIImage(named: "kolokol")
-        kolokol?.pinCenterX(view)
-        kolokol?.setHeight(70)
-        kolokol?.setWidth(64)
-        kolokol?.pinBottom(greetingLabel.topAnchor, 26)
-        kolokol?.shakeWith(duration: 1, angle: 0.5, yOffset: 0.5) { _ in
+        view.addSubview(kolokol)
+        kolokol.image = UIImage(named: "kolokol")
+        kolokol.pinCenterX(view)
+        kolokol.setHeight(70)
+        kolokol.setWidth(64)
+        kolokol.pinBottom(greetingLabel.topAnchor, 26)
+        kolokol.shakeWith(duration: 1, angle: 0.5, yOffset: 0.5) { _ in
             UIView.animate(withDuration: 0.5, delay: 0, options: [.curveEaseInOut], animations: {
-                self.greetingCenterXAnchor.isActive = false
-                self.greetingCenterYAnchor.isActive = false
-                self.greetingTopAnchor.isActive = true
-                self.greetingLeadingAnchor.isActive = true
+                self.greetingCenterXAnchor?.isActive = false
+                self.greetingCenterYAnchor?.isActive = false
+                self.greetingTopAnchor?.isActive = true
+                self.greetingLeadingAnchor?.isActive = true
                 self.view.layoutIfNeeded()
-                self.kolokol?.alpha = 0
-            }, completion: { _ in
-                self.configureNameTextField()
-                self.configureUsernameTextField()
-                self.configureTgTextField()
-                self.configureSaveButton()
+                self.nameTextField.alpha = 1
+                self.usernameTextField.alpha = 1
+                self.tgTextField.alpha = 1
+                self.saveButton.alpha = 1
+                self.kolokol.alpha = 0
             })
- 
         }
     }
     
@@ -104,12 +106,14 @@ final class CredentialsViewController: UIViewController {
         nameTextField = createTextField("Имя")
         nameTextField.pinHorizontal(view, 16)
         nameTextField.pinTop(greetingLabel.bottomAnchor, 16)
+        nameTextField.alpha = 0
     }
     
     private func configureUsernameTextField() {
         usernameTextField = createTextField("Фамилия")
         usernameTextField.pinHorizontal(view, 16)
         usernameTextField.pinTop(nameTextField.bottomAnchor, 0)
+        usernameTextField.alpha = 0
     }
     
     private func configureTgTextField() {
@@ -117,6 +121,7 @@ final class CredentialsViewController: UIViewController {
         tgTextField.pinHorizontal(view, 16)
         tgTextField.pinTop(usernameTextField.bottomAnchor, 0)
         tgTextField.accessibilityIdentifier = "tgTextField"
+        tgTextField.alpha = 0
     }
     
     private func configureSaveButton() {
@@ -132,6 +137,7 @@ final class CredentialsViewController: UIViewController {
         saveButton.setHeight(86)
         saveButton.isEnabled = false
         saveButton.addTarget(self, action: #selector(saveButtonPressed), for: .touchUpInside)
+        saveButton.alpha = 0
     }
     
     private func createTextField(_ placeholder: String) -> UITextField {
@@ -182,6 +188,10 @@ extension CredentialsViewController: UITextFieldDelegate {
         if string.rangeOfCharacter(from: textIgnore) != nil {
             return false
         }
+        return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         if textField.accessibilityIdentifier == "tgTextField" {
             if let text = textField.text {
                 if text.first != "@" {
@@ -189,7 +199,6 @@ extension CredentialsViewController: UITextFieldDelegate {
                 }
             }
         }
-        return true
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
