@@ -33,6 +33,8 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
     
     // MARK: - LifeCycle
     override func viewDidLoad() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
         super.viewDidLoad()
         configureBackground()
         configureUI()
@@ -135,15 +137,34 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
         let fullEmail = email + "@edu.hse.ru"
         presenter.sendEmailButtonPressed(withEmail: fullEmail)
     }
+    
+
+    @objc private func dismissKeyboard() {
+        if emailTextField.isFirstResponder {
+            view.endEditing(true)
+        } else {
+            emailTextField.becomeFirstResponder()
+        }
+    }
 }
 
 // MARK: - UITextFieldDelegate
 extension AuthorizationViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let textIgnore = CharacterSet(charactersIn: "!@#$%^&*()~=[]+`|{}?' '")
+        if string.rangeOfCharacter(from: textIgnore) != nil {
+             return false
+        }
+        
         let cur = textField.text ?? ""
         guard let ran = Range(range, in: cur) else { return false }
         let updated = cur.replacingCharacters(in: ran, with: string)
         textField.adjustsFontSizeToFitWidth = !updated.isEmpty && updated.count > 10
         return updated.count <= 32
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        getCodeButtonPressed()
+        return true
     }
 }
