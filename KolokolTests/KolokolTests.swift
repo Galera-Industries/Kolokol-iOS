@@ -27,13 +27,13 @@ final class KolokolTests: XCTestCase {
     // MARK: - Unit
     
     func testOtpRequestSuccess() async throws {
-        let request = OTPRequest(email: "kialisaev@edu.hse.ru")
+        let request = OTPRequest(email: "v@edu.hse.ru")
         let response = try await authorizationModel?.sendOtpRequest(request)
         XCTAssertNotNil(response)
     }
     
     func testOtpRequestCorrectResponse() async throws {
-        let request = OTPRequest(email: "kialisaev@edu.hse.ru")
+        let request = OTPRequest(email: "v@edu.hse.ru")
         let response = try await authorizationModel?.sendOtpRequest(request)
         XCTAssertNotNil(response)
         XCTAssertEqual(request.email, response?.email)
@@ -51,7 +51,7 @@ final class KolokolTests: XCTestCase {
     }
     
     func testConfirmationFailedWithWrongOtpType() async throws {
-        let otpRequest = OTPRequest(email: "kialisaev@edu.hse.ru")
+        let otpRequest = OTPRequest(email: "v@edu.hse.ru")
         let response = try await authorizationModel?.sendOtpRequest(otpRequest)
         XCTAssertNotNil(response)
         let request = ConfirmOTPRequest(email: response!.email, regToken: UUID(), otp: 12345)
@@ -64,7 +64,7 @@ final class KolokolTests: XCTestCase {
     }
     
     func testConfirmationFailedWithWrongOtp() async throws {
-        let otpRequest = OTPRequest(email: "kialisaev@edu.hse.ru")
+        let otpRequest = OTPRequest(email: "v@edu.hse.ru")
         let response = try await authorizationModel?.sendOtpRequest(otpRequest)
         XCTAssertNotNil(response)
         let request = ConfirmOTPRequest(email: response!.email, regToken: response!.regToken, otp: 0000)
@@ -83,7 +83,7 @@ final class KolokolTests: XCTestCase {
         measure(metrics: [XCTClockMetric()]) {
             let expectation = XCTestExpectation(description: "Запрос на отправку OTP должен завершиться")
             Task {
-                if (try? await authorizationModel?.sendOtpRequest(OTPRequest(email: "kialisaev@edu.hse.ru"))) != nil {
+                if (try? await authorizationModel?.sendOtpRequest(OTPRequest(email: "v@edu.hse.ru"))) != nil {
                     expectation.fulfill()
                 }
             }
