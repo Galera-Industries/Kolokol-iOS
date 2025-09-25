@@ -62,3 +62,8 @@ final class TeacherMainPresenter: TeacherMainPresenterProtocol {
     }
     
 }
+
+struct TestSection {
+    let header: String
+    let items: [TestModel]
+}
