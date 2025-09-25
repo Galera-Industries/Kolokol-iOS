@@ -9,7 +9,6 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
     }
     private var testsSections: [TestSection] = []
     private let testsTableView: UITableView = UITableView(frame: .zero, style: .insetGrouped)
-    private let titleLabel: UILabel = UILabel()
     private let myTestsLabel: UILabel = UILabel()
     private let createTestButton: UIButton = UIButton()
     
@@ -149,26 +148,27 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
     }
     
     private func configureUI() {
-        configureTitleLabel()
+        configureNavbar()
         configurePersonInfoStackView()
         configureMyTestsLabel()
         configureCreateTestButton()
         configureTestsTableView()
     }
     
-    private func configureTitleLabel() {
-        view.addSubview(titleLabel)
-        titleLabel.text = "Kollocol"
-        titleLabel.textColor = Colors.textSecondary
-        titleLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
-        titleLabel.pinTop(view.safeAreaLayoutGuide.topAnchor, 16)
-        titleLabel.pinCenterX(view.centerXAnchor)
+    private func configureNavbar() {
+        navigationItem.title = "Kollocol"
+        let titleFont = UIFont(name: "TTCommons-DemiBold", size: 24) ?? UIFont.systemFont(ofSize: 24, weight: .semibold)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: titleFont,
+            .foregroundColor: Colors.textSecondary
+        ]
+        navigationController?.navigationBar.titleTextAttributes = attributes
     }
     
     private func configurePersonInfoStackView() {
         view.addSubview(personInfoStackView)
         personInfoStackView.pinHorizontal(view, 16)
-        personInfoStackView.pinTop(titleLabel.bottomAnchor, 24)
+        personInfoStackView.pinTop(view.safeAreaLayoutGuide.topAnchor, 12)
     }
     
     private func configureMyTestsLabel() {
@@ -225,7 +225,7 @@ extension TeacherMainViewController: UITableViewDelegate, UITableViewDataSource 
         return testsSections[section].items.count
     }
     
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { 40 }
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { 50 }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "SectionHeaderView") as? SectionHeaderView else {
