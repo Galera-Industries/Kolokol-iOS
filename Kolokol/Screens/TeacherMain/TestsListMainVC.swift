@@ -1,10 +1,21 @@
 import UIKit
 
-final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol {
+final class TestsListMainViewController: UIViewController, TeacherMainViewProtocol {
     var presenter: TeacherMainPresenterProtocol!
-    private var tests: [TestModel] = [] {
+    private var tests: [TestModel] = [] { // для учителя
         didSet {
             if tests.count == 0 {
+                noTestsStackView.alpha = 1
+                testsTableView.alpha = 0
+            } else {
+                noTestsStackView.alpha = 0
+                testsTableView.alpha = 1
+            }
+        }
+    }
+    private var testsResults: [TestResult] = [] { // для студента
+        didSet {
+            if testsResults.count == 0 {
                 noTestsStackView.alpha = 1
                 testsTableView.alpha = 0
             } else {
@@ -106,6 +117,20 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         }
     }
     
+    func routeToMainScreen() {
+        navigationController?.pushViewController(MainAssembly.build(), animated: true)
+    }
+    
+    func routeToTestCreate() {
+        navigationController?.pushViewController(CreateTestAssembly.build(), animated: true)
+    }
+    
+    func setResults(_ results: [TestResult]) {
+        testsResults = results
+        testsTableView.reloadData()
+        refresh.endRefreshing()
+    }
+    
     func showError(_ error: String) {
         let alert = UIAlertController(title: "Ooops", message: error, preferredStyle: .alert)
         let ok = UIAlertAction(title: "OK", style: .default)
@@ -130,24 +155,24 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         ]
         navigationController?.navigationBar.titleTextAttributes = attributes
         
-        let backButton = UIButton(type: .system)
+        let plusButton = UIButton(type: .system)
         
-        backButton.setHeight(44)
-        backButton.setWidth(44)
-        backButton.backgroundColor = Colors.surfaceSecondary
-        backButton.layer.cornerRadius = 22
-        backButton.clipsToBounds = true
+        plusButton.setHeight(44)
+        plusButton.setWidth(44)
+        plusButton.backgroundColor = Colors.surfaceSecondary
+        plusButton.layer.cornerRadius = 22
+        plusButton.clipsToBounds = true
 
-        if let chevron = UIImage(systemName: "plus")?
+        if let plus = UIImage(systemName: "plus")?
             .withConfiguration(UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold))
             .withRenderingMode(.alwaysTemplate) {
-            backButton.setImage(chevron, for: .normal)
-            backButton.tintColor = Colors.textSecondary
+            plusButton.setImage(plus, for: .normal)
+            plusButton.tintColor = Colors.textSecondary
         }
         
-        backButton.addTarget(self, action: #selector(createTestButtonPressed), for: .touchUpInside)
+        plusButton.addTarget(self, action: #selector(plusButtonPressed), for: .touchUpInside)
 
-        let item = UIBarButtonItem(customView: backButton)
+        let item = UIBarButtonItem(customView: plusButton)
         navigationItem.rightBarButtonItem = item
     }
     
@@ -214,15 +239,15 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         presenter.viewLoaded()
     }
     
-    @objc private func createTestButtonPressed() {
-        navigationController?.pushViewController(CreateTestAssembly.build(), animated: true)
+    @objc private func plusButtonPressed() {
+        presenter.routeNext()
     }
 }
 
 
-extension TeacherMainViewController: UITableViewDelegate, UITableViewDataSource {
+extension TestsListMainViewController: UITableViewDelegate, UITableViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int { tests.count }
+    func numberOfSections(in tableView: UITableView) -> Int { tests.isEmpty ? testsResults.count : tests.count }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
     
@@ -230,14 +255,24 @@ extension TeacherMainViewController: UITableViewDelegate, UITableViewDataSource 
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TestCell.cellIdentifier, for: indexPath) as? TestCell else {
             return UITableViewCell()
         }
-        let item = tests[indexPath.section]
-        cell.configure(item)
+        if tests.isEmpty {
+            let item = testsResults[indexPath.section]
+            cell.configure(nil, item)
+        } else {
+            let item = tests[indexPath.section]
+            cell.configure(item, nil)
+        }
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let test = tests[indexPath.section]
-        navigationController?.pushViewController(CreateTestAssembly.build(test: test), animated: true)
+        if tests.isEmpty {
+            let testResult = testsResults[indexPath.section]
+            //navigationController?.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+        } else {
+            let test = tests[indexPath.section]
+            navigationController?.pushViewController(CreateTestAssembly.build(test: test), animated: true)
+        }
     }
 }
 

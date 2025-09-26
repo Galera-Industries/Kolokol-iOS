@@ -106,9 +106,9 @@ final class TestCell: UITableViewCell {
     private func configureLabels() {
         timerLabel = createLabel("")
         timerText = createLabel("Тест не начался")
-        participants = createLabel("24")
+        participants = createLabel("")
         participantsText = createLabel("участника")
-        questions = createLabel("40")
+        questions = createLabel("")
         questionsText = createLabel("вопросов")
     }
     
@@ -150,7 +150,15 @@ final class TestCell: UITableViewCell {
         return l
     }
     
-    func configure(_ test: TestModel) {
+    func configure(_ test: TestModel?, _ testResult: TestResult?) {
+        if let test = test {
+            configureWithTest(test)
+        } else if let testResult = testResult {
+            configureWithTestResult(testResult)
+        }
+    }
+    
+    private func configureWithTest(_ test: TestModel) {
         if test.published {
             testStatusLabel.text = test.isStopped ? "Окончен" : "Идет"
         } else {
@@ -172,12 +180,49 @@ final class TestCell: UITableViewCell {
         }
     }
     
+    private func configureWithTestResult(_ testResult: TestResult) {
+        if let grade10 = testResult.grade10,
+           let submittedAt = testResult.submittedAt {
+            testStatusLabel.text = "Оценено"
+            testCode.text = getCodeString(testResult.code6)
+            timerLabel.text = String(grade10) // превращаем timerLabel в gradeLabel(чтобы не дублировать код)
+            timerText.text = "Оценка"
+            participants.text = "Сдано в"
+            participantsText.text = formatDate(submittedAt)
+            questions.text = ""
+            questionsText.text = ""
+        } else {
+            testStatusLabel.text = "Ждет оценивания"
+            testCode.text = getCodeString(testResult.code6)
+            timerText.text = "Нет оценки"
+            participants.text = "Не сдано"
+            participantsText.text = ""
+            questions.text = ""
+            questionsText.text = ""
+        }
+    }
+    
     private func getCodeString(_ str: String) -> String {
         let n = Int(str) ?? 123456
         let firstThree = n / 1000
         let secondThree = n % 1000
         let code = String(firstThree) + " " + String(secondThree)
         return code
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let calendar = Calendar.current
+        
+        let dateFormatter = DateFormatter()
+        
+        if calendar.isDateInToday(date) {
+            dateFormatter.timeStyle = .short
+            dateFormatter.dateStyle = .none
+        } else {
+            dateFormatter.dateFormat = "dd/MM/yyyy"
+        }
+        
+        return dateFormatter.string(from: date)
     }
     
     private func startTimerIfNeeded() {

@@ -7,13 +7,16 @@
 
 import Foundation
 
-final class TeacherMainPresenter: TeacherMainPresenterProtocol {    
+final class TestsListMainPresenter: TeacherMainPresenterProtocol {
     weak var view: TeacherMainViewProtocol?
     var model: TeacherMainModelProtocol
+    var role: String
     
-    init(view: TeacherMainViewProtocol, model: TeacherMainModelProtocol) {
+    init(view: TeacherMainViewProtocol? = nil, model: TeacherMainModelProtocol, role: String) {
         self.view = view
         self.model = model
+        self.role = role
+        
         registerNotifications()
     }
     
@@ -22,18 +25,52 @@ final class TeacherMainPresenter: TeacherMainPresenterProtocol {
         view?.setCredentials(email,name)
         Task {
             do {
-                let tests = try await model.fetchTests()
-                
-                await MainActor.run {
-                    view?.showTests(tests)
+                if role == "student" {
+                    let testsResults = try await model.fetchTestsResults()
+                    
+                    await MainActor.run {
+                        view?.setResults(testsResults)
+                    }
+                    
+                } else if role == "teacher" {
+                    let tests = try await model.fetchTests()
+                    
+                    await MainActor.run {
+                        view?.showTests(tests)
+                    }
                 }
-                
+
             } catch {
                 
                 await MainActor.run {
                     view?.showError(mapError(error))
                 }
             }
+        }
+    }
+    
+    func fetchTestsResults() {
+        Task {
+            do {
+                let response = try await model.fetchTestsResults()
+                await MainActor.run {
+                    view?.setResults(response)
+                }
+                
+            } catch {
+                await MainActor.run {
+                    view?.showError(error.localizedDescription)
+                }
+                
+            }
+        }
+    }
+    
+    func routeNext() {
+        if role == "student" {
+            view?.routeToMainScreen()
+        } else if role == "teacher" {
+            view?.routeToTestCreate()
         }
     }
     

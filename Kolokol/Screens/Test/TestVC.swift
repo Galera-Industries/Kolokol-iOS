@@ -209,6 +209,10 @@ final class TestViewController: UIViewController, TestViewProtocol {
         tableView.reloadData()
     }
     
+    func goBack() {
+        navigationController?.popViewController(animated: true)
+    }
+    
 
     func showError(_ error: String) {
         let ac = UIAlertController(title: "Ошибка", message: error, preferredStyle: .alert)

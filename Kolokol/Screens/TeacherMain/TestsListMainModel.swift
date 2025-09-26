@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class TeacherMainModel: TeacherMainModelProtocol {
+final class TestsListMainModel: TeacherMainModelProtocol {
     
     var keychain: KeychainManagerProtocol
     var userDefaults: UserDefaultsProtocol
@@ -32,5 +32,17 @@ final class TeacherMainModel: TeacherMainModelProtocol {
         guard let email = keychain.getString(key: KeychainManager.keyForSaveEmail) else { return ("ERROR","ERROR") }
         let name = userDefaults.loadCredentials().name
         return (email, name)
+    }
+    
+    
+    func fetchTestsResults() async throws -> [TestResult] {
+        
+        guard let accessToken = keychain.getString(key: KeychainManager.keyForSaveAccessToken) else {
+            throw NetworkError(message: "No access token in keychain") ?? .decodingError
+        }
+        
+        let response: [TestResult] = try await NetworkService.shared.request(endpoint: Endpoints.testsResults.rawValue, method: .get, body: nil as EmptyBody?, headers: ["Authorization": "Bearer \(accessToken)"])
+        
+        return response
     }
 }
