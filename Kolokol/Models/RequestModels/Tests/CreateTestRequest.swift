@@ -45,7 +45,7 @@ struct CreateTestRequest : Codable {
         case answersVisible = "answers_visible"
         case questions
         case testId
-        case assigness
+        case assignees
         case assignedMode = "assigned_mode"
     }
 }

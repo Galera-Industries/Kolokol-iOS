@@ -374,7 +374,7 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
             guard let self, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
             let new = QuestionRow(id: UUID(), title: text, kind: "text")
             self.rows.append(new)
-            let ip = IndexPath(row: self.optionRows.count + self.rows.count , section: 0)
+            let ip = IndexPath(row: self.optionRows.count + self.rows.count + 1 , section: 0)
             self.tableView.insertRows(at: [ip], with: .automatic)
         }
         present(UINavigationController(rootViewController: vc), animated: true)
@@ -516,10 +516,10 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
         }
         
         if isQuestionRow(indexPath) {
-            let localIndex = indexPath.row - optionRows.count - 1
+            let localIndex = indexPath.row - optionRows.count - 2
             guard let cell = tableView.dequeueReusableCell(withIdentifier: QuestionCell.reuseID, for: indexPath) as? QuestionCell
             else { return UITableViewCell() }
-            cell.configure(with: rows[localIndex], index: localIndex + 1)
+            cell.configure(with: rows[localIndex], index: localIndex)
             return cell
         }
         
