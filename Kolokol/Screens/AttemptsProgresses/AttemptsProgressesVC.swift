@@ -11,12 +11,11 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView {
     enum Section { case main }
     
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private var dataSource: UITableViewDiffableDataSource<Section, UUID>!
+    private var dataSource: UITableViewDiffableDataSource<Section, UUID>?
     
     private var itemsById: [UUID: AttemptDisplayItem] = [:]
     
-    var presenter: AttemptsPresenterProtocol!
-    
+    var presenter: AttemptsPresenterProtocol?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -29,13 +28,13 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        presenter.attach()
+        presenter?.attach()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if self.isMovingFromParent || self.isBeingDismissed {
-            presenter.detach()
+            presenter?.detach()
         }
     }
     
@@ -67,7 +66,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView {
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, UUID>()
         snapshot.appendSections([.main])
-        dataSource.apply(snapshot, animatingDifferences: false)
+        dataSource?.apply(snapshot, animatingDifferences: false)
     }
     
     @MainActor
@@ -79,7 +78,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView {
         let changedIds: [UUID] = idsInOrder.filter { id in
             guard let new = newById[id] else { return false }
             let old = lastItemsById[id]
-            return old == nil || old!.answered != new.answered || old!.total != new.total || old!.fullName != new.fullName
+            return old == nil || old?.answered != new.answered || old?.total != new.total || old?.fullName != new.fullName
         }
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, UUID>()
@@ -92,7 +91,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView {
             snapshot.reloadItems(changedIds)
         }
         
-        dataSource.apply(snapshot, animatingDifferences: animate)
+        dataSource?.apply(snapshot, animatingDifferences: animate)
         lastItemsById = newById
         
         tableView.backgroundView = items.isEmpty ? {

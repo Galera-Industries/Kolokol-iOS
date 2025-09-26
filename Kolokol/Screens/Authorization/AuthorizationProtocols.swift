@@ -5,8 +5,6 @@
 //  Created by Кирилл Исаев on 20.09.2025.
 //
 
-import Foundation
-
 protocol AuthorizationModelProtocol {
     func sendOtpRequest(_ request: OTPRequest) async throws -> OTPResponse
 }

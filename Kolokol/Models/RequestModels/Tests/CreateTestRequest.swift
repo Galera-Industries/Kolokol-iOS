@@ -31,6 +31,7 @@ struct CreateTestRequest : Codable {
     let resultsPublished: Bool
     let answersVisible: Bool
     let questions: [Question]
+    let testId: UUID?
     
     enum CodingKeys: String, CodingKey {
         case title
@@ -41,13 +42,49 @@ struct CreateTestRequest : Codable {
         case resultsPublished = "results_published"
         case answersVisible = "answers_visible"
         case questions
+        case testId
     }
 }
 
-enum ScoringMode : Codable {
+struct EditTestResponse: Codable {
+    struct QuestionDTO: Codable {
+        let type: QuestionType
+        let text: String
+        let options: Options?
+        let imageUrl: URL?
+        let order: Int
+        let weight: Int
+
+        enum CodingKeys: String, CodingKey {
+            case type, text, options, order, weight
+            case imageUrl = "image_url"
+        }
+    }
+
+    let title: String
+    let published: Bool
+    let deadlineAt: Date?
+    let timeLimitSec: Int?
+    let scoringMode: ScoringMode
+    let resultsPublished: Bool
+    let answersVisible: Bool
+    let questions: [QuestionDTO]
+
+    enum CodingKeys: String, CodingKey {
+        case title, published, questions
+        case deadlineAt = "deadline_at"
+        case timeLimitSec = "time_limit_sec"
+        case scoringMode = "scoring_mode"
+        case resultsPublished = "results_published"
+        case answersVisible = "answers_visible"
+    }
+}
+
+enum ScoringMode: String, Codable {
     case equal
     case weighted
 }
+
 
 struct Options: Codable {
     let choices: [Choice]?
