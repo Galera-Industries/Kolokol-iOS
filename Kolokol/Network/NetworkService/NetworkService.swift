@@ -51,7 +51,19 @@ final class NetworkService: NetworkServiceProtocol {
         headers?.forEach { key, value in
             request.setValue(value, forHTTPHeaderField: key)
         }
-        
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes] // для красоты
+
+        do {
+            let data = try encoder.encode(body)
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print(jsonString)
+            } else {
+                print("Ошибка: не удалось преобразовать Data в String")
+            }
+        } catch {
+            print("Ошибка кодирования: \(error)")
+        }
         if let body = body {
             do {
                 request.httpBody = try JSONEncoder().encode(body)
