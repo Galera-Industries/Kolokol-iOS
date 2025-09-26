@@ -33,10 +33,13 @@ final class CodeEnteringPresenter: CodeEnteringPresenterProtocol {
                 _ = keychain.save(key: KeychainManager.keyForSaveRefreshToken, value: data.refreshToken)
                 
                 await MainActor.run {
-                    if let student = data.profileComplete {
-                        view?.routeNext(student)
+                    if data.role == "student" {
+                        if let completed = data.profileComplete {
+                            view?.routeNext(completed, false) // студенты
+                        }
                     } else {
-                        view?.routeNext(true)
+                        model.loadCredentialsForTeacher(email)
+                        view?.routeNext(true, true) //  учителя
                     }
                 }
                 

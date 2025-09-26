@@ -18,23 +18,57 @@ fileprivate enum Constants {
 
 @MainActor
 final class UIDeletableTextField: UIView, UIKeyInput {
+    struct ColorScheme {
+        let base: UIColor
+        let filled: UIColor
+        let error: UIColor
+
+        static let `default` = ColorScheme(
+            base: Colors.surfaceSecondary,
+            filled: Colors.surfaceSecondary.withAlphaComponent(0.6),
+            error: UIColor(red: 1, green: 0.8, blue: 0.8, alpha: 0.6)
+        )
+
+        static let `main` = ColorScheme(
+            base: UIColor(hex: "#7C7C7C")?.withAlphaComponent(0.1) ?? .white,
+            filled: UIColor(hex: "#7C7C7C")?.withAlphaComponent(0.1) ?? .white,
+            error: UIColor(red: 1, green: 0.8, blue: 0.8, alpha: 0.6)
+        )
+    }
+
     private let hiddenTextField = CustomTextField()
     var onComplete: ((String) -> Void)?
+    var onChange: ((Int) -> Void)? // Для количества введенных символов
 
-    private let digitCount = 4
-    private var digits: [Character] = []
+    private let digitCount: Int
+    private var digits: [Character] = [] {
+        didSet { onChange?(digits.count) }
+    }
     private var digitLabels: [UILabel] = []
 
-    private var baseColor: UIColor { Colors.surfaceSecondary }
-    private var filledColor: UIColor { Colors.surfaceSecondary.withAlphaComponent(0.6) }
-    private var errorColor: UIColor { UIColor(red: 1, green: 0.8, blue: 0.8, alpha: 0.6) }
+    private let colorScheme: ColorScheme
+    private var baseColor: UIColor { colorScheme.base }
+    private var filledColor: UIColor { colorScheme.filled }
+    private var errorColor: UIColor { colorScheme.error }
+
+    init(digitCount: Int = 4, colorScheme: ColorScheme = .main) {
+        self.digitCount = max(1, digitCount)
+        self.colorScheme = colorScheme
+        super.init(frame: .zero)
+        setupView()
+    }
 
     override init(frame: CGRect) {
+        self.digitCount = 4
+        self.colorScheme = .default
         super.init(frame: frame)
         setupView()
     }
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
+        self.digitCount = 4
+        self.colorScheme = .default
         super.init(coder: coder)
         setupView()
     }
@@ -149,11 +183,13 @@ final class UIDeletableTextField: UIView, UIKeyInput {
 
     func insertText(_ text: String) {
         guard !text.isEmpty else { return }
+        var changed = false
         for ch in text where ch.isNumber {
             guard digits.count < digitCount else { break }
             digits.append(ch)
+            changed = true
         }
-        updateLabels()
+        if changed { updateLabels() }
 
         if digits.count == digitCount {
             onComplete?(String(digits))

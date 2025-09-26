@@ -27,8 +27,8 @@ final class CodeEnteringViewController: UIViewController, CodeEnteringViewProtoc
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Task { @MainActor in
-            self.codeField.setFocusToFirstField()
+        Task { @MainActor [weak self] in
+            self?.codeField.setFocusToFirstField()
         }
     }
     
@@ -104,8 +104,16 @@ final class CodeEnteringViewController: UIViewController, CodeEnteringViewProtoc
         self.present(alertController, animated: true)
     }
     
-    func routeNext(_ isStudent: Bool) {
-        // Code for routing
+    func routeNext(_ isComplete: Bool, _ isTeacher: Bool) {
+        if isTeacher {
+            navigationController?.pushViewController(TeacherMainAssembly.build(), animated: true)
+        } else {
+            if isComplete {
+                navigationController?.pushViewController(MainAssembly.build(), animated: true)
+            } else {
+                navigationController?.pushViewController(CredentialsAssembly.build(), animated: true)
+            }
+        }
     }
     
     // MARK: - Private

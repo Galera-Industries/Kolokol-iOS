@@ -13,4 +13,8 @@ enum Endpoints: String {
     case authOtpRequest = "/auth/otp/request"
     case authOtpConfirm = "/auth/otp/confirm"
     case authRefresh = "/auth/refresh"
+    case teacherTests = "/teacher/tests"
+    case test = "/tests"
+    case credentials = "/users/profile"
+    case getStudent = "/teacher/students"
 }

@@ -12,7 +12,7 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>$(BASE_URL)</key>
+			<key>158.160.183.50</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>

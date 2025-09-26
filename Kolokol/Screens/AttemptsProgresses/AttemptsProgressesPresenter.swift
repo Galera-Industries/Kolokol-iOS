@@ -10,18 +10,20 @@ import Foundation
 final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
     private weak var view: AttemptsView?
     private let testId: UUID
-    private let bearer: String
+    var model: AttemptsProgressesModelProtocol?
+    private let keychain: KeychainManagerProtocol
     
     private var itemsById: [UUID: AttemptDisplayItem] = [:]
     private var streamTask: Task<Void, Never>?
     
-    init(view: AttemptsView, testId: UUID, bearer: String) {
+    init(view: AttemptsView, testId: UUID, keychain: KeychainManagerProtocol) {
         self.view = view
         self.testId = testId
-        self.bearer = bearer
+        self.keychain = keychain
     }
     
     func attach() {
+        guard let bearer = keychain.getString(key: KeychainManager.keyForSaveAccessToken) else { return }
         let stream = WebSocketService.shared.openTestProgressStream(testId: testId, bearer: bearer)
         streamTask = Task { [weak self] in
             guard let self else { return }
@@ -67,23 +69,73 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
     }
     
     private func upsert(from e: StudentEventData) {
-        if let old = itemsById[e.attempt_id], e.answered < old.answered {
+        if let old = itemsById[e.attemptId], e.answered < old.answered {
             return
         }
         let item = AttemptDisplayItem(
-            attemptId: e.attempt_id,
-            firstName: e.first_name,
-            lastName: e.last_name,
+            attemptId: e.attemptId,
+            firstName: e.firstName,
+            lastName: e.lastName,
             answered: e.answered,
             total: e.total,
-            updatedAt: e.updated_at
+            updatedAt: e.updatedAt,
+            tg: e.tg,
+            assessed: e.assessed,
+            result: e.result
         )
-        itemsById[e.attempt_id] = item
+        itemsById[e.attemptId] = item
     }
     
     private func apply(animated: Bool) {
         let items = itemsById.values.sorted { $0.updatedAt > $1.updatedAt }
         view?.render(items: items, animate: animated)
+    }
+    
+    func publish() {
+        Task {
+            do {
+                let req = PublishResultsRequest(publish: true)
+                let resp = try await model?.publishResultsRequest(req, testId: testId)
+                await MainActor.run {
+                    view?.showPublishResult()
+                }
+            } catch {
+                await MainActor.run {
+                    view?.showError(msg: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func getStudents() {
+        Task {
+            do {
+                let resp = try await model?.getAttemptsRequest(testId)
+                guard let resp = resp else { return }
+                var items: [AttemptDisplayItem] = []
+                for item in resp.items {
+                    let newItem = AttemptDisplayItem(
+                        attemptId: item.attemptId,
+                        firstName: item.firstName,
+                        lastName: item.lastName,
+                        answered: item.answered,
+                        total: item.total,
+                        updatedAt: Date(),
+                        tg: item.tg,
+                        assessed: item.assessed == "done",
+                        result: item.result
+                    )
+                    items.append(newItem)
+                }
+                await MainActor.run {
+                    view?.showGetStudents(items: items)
+                }
+            } catch {
+                await MainActor.run {
+                    view?.showError(msg: error.localizedDescription)
+                }
+            }
+        }
     }
 }
 
@@ -95,6 +147,8 @@ struct AttemptDisplayItem: Hashable {
     let answered: Int
     let total: Int
     let updatedAt: Date
-    
+    let tg: String
+    let assessed: Bool
+    let result: Int?
     var fullName: String { "\(lastName) \(firstName)" }
 }

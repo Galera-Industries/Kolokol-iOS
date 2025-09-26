@@ -9,7 +9,7 @@ import Foundation
 
 // POST /tests
 struct CreateTestResponse: Codable {
-    let id: String
+    let id: UUID
     let code: Int
     
     enum CodingKeys: String, CodingKey {
@@ -19,7 +19,7 @@ struct CreateTestResponse: Codable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decode(String.self, forKey: .id)
+        id = try container.decode(UUID.self, forKey: .id)
         
         if let intCode = try? container.decode(Int.self, forKey: .code) {
             code = intCode
