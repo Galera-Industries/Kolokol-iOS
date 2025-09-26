@@ -613,7 +613,7 @@ final class PrimaryActionButton: UIButton {
     init(title: String) {
         super.init(frame: .zero)
         let baseCfg: UIButton.Configuration = {
-            if #available(iOS 26.0, *) { return .glass() }
+            if #available(iOS 26.0, *) { return .bordered() }
             var c = UIButton.Configuration.filled()
             c.baseBackgroundColor = UIColor(white: 1, alpha: 0.14)
             return c

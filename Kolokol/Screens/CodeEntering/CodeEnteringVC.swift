@@ -104,11 +104,15 @@ final class CodeEnteringViewController: UIViewController, CodeEnteringViewProtoc
         self.present(alertController, animated: true)
     }
     
-    func routeNext(_ isComplete: Bool) {
-        if isComplete {
-            //
+    func routeNext(_ isComplete: Bool, _ isTeacher: Bool) {
+        if isTeacher {
+            navigationController?.pushViewController(TeacherMainAssembly.build(), animated: true)
         } else {
-            navigationController?.pushViewController(CredentialsAssembly.build(), animated: true)
+            if isComplete {
+                navigationController?.pushViewController(MainAssembly.build(), animated: true)
+            } else {
+                navigationController?.pushViewController(CredentialsAssembly.build(), animated: true)
+            }
         }
     }
     

@@ -7,8 +7,7 @@
 
 import UIKit
 
-final class CredentialsViewController: UIViewController {
-    
+final class CredentialsViewController: UIViewController, CredentialsViewProtocol {
     var presenter: CredentialsPresenterProtocol!
     
     private var kolokol: UIImageView = UIImageView()
@@ -40,6 +39,17 @@ final class CredentialsViewController: UIViewController {
         Task { @MainActor in
             setFocusOn(nameTextField)
         }
+    }
+    
+    func routeNext() {
+        navigationController?.pushViewController(MainAssembly.build(), animated: true)
+    }
+    
+    func showError(_ error: String) {
+        let alertController = UIAlertController(title: "Ooops, error", message: error, preferredStyle: .alert)
+        let ok = UIAlertAction(title: "Ok, this is terrible", style: .default)
+        alertController.addAction(ok)
+        self.present(alertController, animated: true)
     }
     
     private func configureUI() {
@@ -191,8 +201,6 @@ final class CredentialsViewController: UIViewController {
               let tg = tgTextField.text else { return }
         if name.isEmpty || username.isEmpty || tg.isEmpty { return }
         presenter.saveButtonPressed(name, username, tg)
-        
-        navigationController?.pushViewController(MainAssembly.build(), animated: true)
     }
     
     @objc private func dismissKeyboard() {

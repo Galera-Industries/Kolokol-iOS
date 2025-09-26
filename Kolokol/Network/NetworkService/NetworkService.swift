@@ -150,10 +150,27 @@ final class NetworkService: NetworkServiceProtocol {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             let decoded = try decoder.decode(T.self, from: data)
+            if let prettyData = data.prettyJSON {
+                print(prettyData)
+            }
             return decoded
             
         } catch {
             throw NetworkError.unknown(message: error.localizedDescription)
         }
+    }
+}
+
+extension Data {
+    var prettyJSON: String? {
+        guard
+            let obj = try? JSONSerialization.jsonObject(with: self, options: []),
+            let prettyData = try? JSONSerialization.data(
+                withJSONObject: obj,
+                options: [.prettyPrinted, .sortedKeys]
+            ),
+            let string = String(data: prettyData, encoding: .utf8)
+        else { return nil }
+        return string
     }
 }

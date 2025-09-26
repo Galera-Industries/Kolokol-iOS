@@ -14,7 +14,7 @@ protocol CodeEnteringModelProtocol {
 
 protocol CodeEnteringViewProtocol: AnyObject {
     func showError(_ error: String)
-    func routeNext(_ isCompleted: Bool)
+    func routeNext(_ isComplete: Bool, _ isTeacher: Bool)
 }
 
 protocol CodeEnteringPresenterProtocol {

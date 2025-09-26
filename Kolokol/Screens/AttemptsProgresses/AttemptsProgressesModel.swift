@@ -25,13 +25,14 @@ final class AttemptsProgressesModel : AttemptsProgressesModelProtocol {
     }
     
     func getAttemptsRequest() async throws -> EmptyResponse {
-        let response: EmptyResponse = try await NetworkService.shared.request(
-            endpoint: <#String#>,
-            method: <#HTTPMethod#>
-        )
+//        let response: EmptyResponse = try await NetworkService.shared.request(
+//            endpoint: "",
+//            method: .
+//        )
+        return EmptyResponse()
     }
     
     func publishResultsRequest(_ request: PublishResultsRequest) async throws -> EmptyResponse {
-        <#code#>
+        return EmptyResponse()
     }
 }

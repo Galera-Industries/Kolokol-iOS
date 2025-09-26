@@ -4,13 +4,17 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
     var presenter: TeacherMainPresenterProtocol!
     private var tests: [TestModel] = [] {
         didSet {
-            // мб понадобится
+            if tests.count == 0 {
+                noTestsStackView.alpha = 1
+                testsTableView.alpha = 0
+            } else {
+                noTestsStackView.alpha = 0
+                testsTableView.alpha = 1
+            }
         }
     }
-    private var testsSections: [TestSection] = []
     private let testsTableView: UITableView = UITableView(frame: .zero, style: .insetGrouped)
-    private let myTestsLabel: UILabel = UILabel()
-    private let createTestButton: UIButton = UIButton()
+    private let noTestsStackView: UIStackView = UIStackView()
     
     private lazy var monthFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -75,37 +79,10 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         presenter.viewLoaded()
         configureMainBackground()
         configureUI()
-        
-        self.tests = [
-            TestModel(id: UUID(), code: 123456, title: "Тест по олимпиадной математике 5 класс", published: false, resultsPublished: false, answersVisible: false, createdAt: Date()),
-            TestModel(id: UUID(), code: 123456, title: "Тест по матану 2 курс", published: false, resultsPublished: false, answersVisible: false, createdAt: Date()),
-            TestModel(id: UUID(), code: 123456, title: "Тест по русскому языку", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Коллоквиум", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по устройству двигателей внутреннего сгорания", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по английскому", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -2, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по UIKit", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -2, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по SwiftUI", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .year, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по iOS - база", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .year, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по дискре 5 класс", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .year, value: -2, to: Date())!)
-        ]
-        testsSections = buildSections(from: tests)
-        testsTableView.reloadData()
     }
     
     func showTests(_ tests: [TestModel]) {
-        self.tests = [
-            TestModel(id: UUID(), code: 123456, title: "Тест по олимпиадной математике 5 класс", published: false, resultsPublished: false, answersVisible: false, createdAt: Date()),
-            TestModel(id: UUID(), code: 123456, title: "Тест по матану 2 курс", published: false, resultsPublished: false, answersVisible: false, createdAt: Date()),
-            TestModel(id: UUID(), code: 123456, title: "Тест по русскому языку", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Коллоквиум", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по устройству двигателей внутреннего сгорания", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по английскому", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -2, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по UIKit", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .month, value: -2, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по SwiftUI", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .year, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по iOS - база", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .year, value: -1, to: Date())!),
-            TestModel(id: UUID(), code: 123456, title: "Тест по дискре 5 класс", published: false, resultsPublished: false, answersVisible: false, createdAt: Calendar.current.date(byAdding: .year, value: -2, to: Date())!)
-        ]
-        
+        self.tests = tests
         testsTableView.reloadData()
     }
     
@@ -116,42 +93,10 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         self.present(alert, animated: true)
     }
     
-    private func buildSections(from tests: [TestModel]) -> [TestSection] {
-        let dated = tests.map { t -> (Date, TestModel) in
-            return (t.createdAt, t)
-        }
-        let cal = Calendar.current
-        let grouped = Dictionary(grouping: dated, by: { (pair) -> Date in
-            let d = pair.0
-            let comps = cal.dateComponents([.year, .month], from: d)
-            return cal.date(from: comps)!
-        })
-
-        let sections: [TestSection] = grouped.map { (monthStart, pairs) in
-            let header: String = {
-                let year = cal.component(.year, from: monthStart)
-                let thisYear = cal.component(.year, from: Date())
-                if year == thisYear {
-                    return monthFormatter.string(from: monthStart)
-                } else {
-                    return monthYearFormatter.string(from: monthStart)
-                }
-            }()
-            let items = pairs
-                .sorted { $0.0 > $1.0 }
-                .map { $0.1 }
-            
-            return TestSection(header: header, items: items)
-        }
-            .sorted { $0.items.first?.createdAt ?? .distantFuture > $1.items.first?.createdAt ?? .distantFuture}
-        return sections
-    }
-    
     private func configureUI() {
         configureNavbar()
         configurePersonInfoStackView()
-        configureMyTestsLabel()
-        configureCreateTestButton()
+        configureNoTestsStackView()
         configureTestsTableView()
     }
     
@@ -163,6 +108,26 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
             .foregroundColor: Colors.textSecondary
         ]
         navigationController?.navigationBar.titleTextAttributes = attributes
+        
+        let backButton = UIButton(type: .system)
+        
+        backButton.setHeight(44)
+        backButton.setWidth(44)
+        backButton.backgroundColor = Colors.surfaceSecondary
+        backButton.layer.cornerRadius = 22
+        backButton.clipsToBounds = true
+
+        if let chevron = UIImage(systemName: "plus")?
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold))
+            .withRenderingMode(.alwaysTemplate) {
+            backButton.setImage(chevron, for: .normal)
+            backButton.tintColor = Colors.textSecondary
+        }
+        
+        backButton.addTarget(self, action: #selector(createTestButtonPressed), for: .touchUpInside)
+
+        let item = UIBarButtonItem(customView: backButton)
+        navigationItem.rightBarButtonItem = item
     }
     
     private func configurePersonInfoStackView() {
@@ -171,29 +136,35 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         personInfoStackView.pinTop(view.safeAreaLayoutGuide.topAnchor, 12)
     }
     
-    private func configureMyTestsLabel() {
-        view.addSubview(myTestsLabel)
-        myTestsLabel.text = "Мои тесты"
-        myTestsLabel.textColor = Colors.textPrimary
-        myTestsLabel.font = UIFont(name: "TTCommons-DemiBold", size: 40)
-        myTestsLabel.pinTop(personInfoStackView.bottomAnchor, 20)
-        myTestsLabel.pinLeft(view.leadingAnchor, 16)
-        myTestsLabel.setWidth(200)
-        myTestsLabel.setHeight(40)
-    }
-    
-    private func configureCreateTestButton() {
-        view.addSubview(createTestButton)
-        createTestButton.setTitle("Создать тест", for: .normal)
-        createTestButton.setTitleColor(Colors.textPrimary, for: .normal)
-        createTestButton.backgroundColor = UIColor(hex: "7C7C7C", alpha: 0.2)
-        createTestButton.titleLabel?.font = UIFont(name: "TTCommons-DemiBold", size: 24)
-        createTestButton.layer.cornerRadius = 32
-        createTestButton.pinBottom(view.safeAreaLayoutGuide.bottomAnchor, 20)
-        createTestButton.pinLeft(view.leadingAnchor, 16)
-        createTestButton.pinRight(view.trailingAnchor, 16)
-        createTestButton.setHeight(86)
-        createTestButton.addTarget(self, action: #selector(createTestButtonPressed), for: .touchUpInside)
+    private func configureNoTestsStackView() {
+        view.addSubview(noTestsStackView)
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "text.page")?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = Colors.textSecondary
+        imageView.preferredSymbolConfiguration = .init(pointSize: 68, weight: .regular)
+        
+        let label = UILabel()
+        label.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        label.textColor = Colors.textSecondary
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.text = "Отобразим здесь все ваши тесты"
+        
+        noTestsStackView.addArrangedSubview(imageView)
+        noTestsStackView.addArrangedSubview(label)
+        
+        noTestsStackView.axis = .vertical
+        noTestsStackView.spacing = 12
+        noTestsStackView.alignment = .center
+        noTestsStackView.alpha = 1
+        
+        noTestsStackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            noTestsStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            noTestsStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            noTestsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 100),
+            noTestsStackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -100)
+        ])
     }
     
     private func configureTestsTableView() {
@@ -203,12 +174,14 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         testsTableView.delegate = self
         testsTableView.dataSource = self
         testsTableView.register(TestCell.self, forCellReuseIdentifier: TestCell.cellIdentifier)
-        testsTableView.register(SectionHeaderView.self, forHeaderFooterViewReuseIdentifier: "SectionHeaderView")
         
-        testsTableView.pinTop(myTestsLabel.bottomAnchor, 12)
+        testsTableView.pinTop(personInfoStackView.bottomAnchor, 12)
         testsTableView.pinHorizontal(view)
-        testsTableView.pinBottom(createTestButton.topAnchor, 16)
+        testsTableView.pinBottom(view.bottomAnchor, 12)
+        
+        testsTableView.alpha = 0
     }
+    
     
     @objc private func createTestButtonPressed() {
         //navigationController?.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
@@ -218,38 +191,17 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
 
 extension TeacherMainViewController: UITableViewDelegate, UITableViewDataSource {
     
-    func numberOfSections(in tableView: UITableView) -> Int { testsSections.count }
+    func numberOfSections(in tableView: UITableView) -> Int { tests.count }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard section < testsSections.count else { return 0 }
-        return testsSections[section].items.count
-    }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { 50 }
-    
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "SectionHeaderView") as? SectionHeaderView else {
-            return UIView()
-        }
-        header.label.text = testsSections[section].header
-        header.backgroundColor = .clear
-        return header
-    }
-    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TestCell.cellIdentifier, for: indexPath) as? TestCell else {
             return UITableViewCell()
         }
-        guard indexPath.section < testsSections.count else {
-            return UITableViewCell()
-        }
-        let section = testsSections[indexPath.section]
-        guard indexPath.row < section.items.count else {
-            return UITableViewCell()
-        }
-        let item = section.items[indexPath.row]
+        let item = tests[indexPath.section]
         cell.configure(item)
         return cell
     }
 }
+

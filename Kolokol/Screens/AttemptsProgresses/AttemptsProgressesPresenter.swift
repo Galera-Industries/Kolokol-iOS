@@ -8,6 +8,10 @@
 import Foundation
 
 final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
+    func getStudnts() {
+        //
+    }
+    
     func publish() {
         
     }

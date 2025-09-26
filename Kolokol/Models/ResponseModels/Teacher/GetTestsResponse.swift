@@ -15,7 +15,14 @@ struct TestModel : Codable {
     let published: Bool
     let resultsPublished: Bool
     let answersVisible: Bool
+    let isStopped: Bool
+    let deadlineAt: Date
+    let participans: Int
+    let questions: Int
     let createdAt: Date
+    let updatedAt: Date
+    let publishedAt: Date
+    
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -24,6 +31,12 @@ struct TestModel : Codable {
         case published
         case resultsPublished = "results_published"
         case answersVisible = "answers_visible"
+        case isStopped = "is_stopped"
+        case deadlineAt = "deadline_at"
+        case participans
+        case questions
         case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case publishedAt = "published_at"
     }
 }

@@ -14,7 +14,7 @@ final class UserDefaultsManager: UserDefaultsProtocol {
     
     func saveCredentials(_ credentials: Credentials) {
         saveName(credentials.name)
-        saveUsername(credentials.username)
+        saveUsername(credentials.lastname)
         saveTg(credentials.tg)
     }
     
@@ -22,8 +22,8 @@ final class UserDefaultsManager: UserDefaultsProtocol {
         guard let name = UserDefaults.standard.string(forKey: nameKey),
               let username = UserDefaults.standard.string(forKey: usernameKey),
               let tg = UserDefaults.standard.string(forKey: tgKey) else {
-            return Credentials(name: "Defaults", username: "Default", tg: "@mmrdrrr")}
-        return Credentials(name: name, username: username, tg: tg)
+            return Credentials(name: "Defaults", lastname: "Default", tg: "@mmrdrrr")}
+        return Credentials(name: name, lastname: username, tg: tg)
     }
     
     
