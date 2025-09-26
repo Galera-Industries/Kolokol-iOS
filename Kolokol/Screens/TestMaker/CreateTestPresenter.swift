@@ -121,6 +121,9 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
         if let deadline = request.deadlineAt, deadline < Date().addingTimeInterval(5 * 60) {
             return "Дедлайн должен быть не раньше, чем через 5 минут."
         }
+        if request.questions.isEmpty {
+            return "Добавьте хотя бы один вопрос."
+        }
         return nil
     }
 

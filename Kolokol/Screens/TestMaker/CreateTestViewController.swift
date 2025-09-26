@@ -62,12 +62,12 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         p.minuteInterval = 5
         return p
     }()
-    private let deadlinePicker: UIDatePicker = {
-        let p = UIDatePicker()
-        p.datePickerMode = .dateAndTime
-        p.minimumDate = Date()
-        return p
-    }()
+//    private let deadlinePicker: UIDatePicker = {
+//        let p = UIDatePicker()
+//        p.datePickerMode = .dateAndTime
+//        p.minimumDate = Date()
+//        return p
+//    }()
     
     private var titleText: String = ""
     private var code6: String = ""
@@ -116,7 +116,6 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
 
         rows = []
         durationPicker.countDownDuration = TimeInterval(ttlMinutesValue * 60)
-        deadlinePicker.date = Date().addingTimeInterval(60 * 60)
 
         presenter?.viewDidLoad()
         
@@ -249,7 +248,6 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         view.addSubview(deadlineProxyField)
         
         durationProxyField.inputView = durationPicker
-        deadlineProxyField.inputView = deadlinePicker
         
         let tb1 = makeToolbar(done: #selector(durationDone), cancel: #selector(closePickers))
         let tb2 = makeToolbar(done: #selector(deadlineDone), cancel: #selector(closePickers))
@@ -259,7 +257,6 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
     
     private func bindPickers() {
         durationPicker.addTarget(self, action: #selector(durationChanged), for: .valueChanged)
-        deadlinePicker.addTarget(self, action: #selector(deadlineChanged), for: .valueChanged)
     }
     
     private func makeToolbar(done: Selector, cancel: Selector) -> UIToolbar {
@@ -298,14 +295,6 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         }
     }
     
-    @objc private func deadlineChanged() {
-        deadlineValue = deadlinePicker.date
-        if let ip = indexPathForOption(.deadlineDetail),
-           let cell = tableView.cellForRow(at: ip) as? DeadlineValueCell {
-            cell.update(date: deadlineValue)
-        }
-    }
-    
     @objc private func durationDone() { view.endEditing(true) }
     @objc private func deadlineDone() { view.endEditing(true) }
     @objc private func closePickers() { view.endEditing(true) }
@@ -315,7 +304,8 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
             title: titleText.trimmingCharacters(in: .whitespacesAndNewlines),
             code6: code6,
             ttlMinutes: timeLimitOn ? ttlMinutesValue : nil,
-            deadline: deadlineOn ? (deadlineValue ?? deadlinePicker.date) : nil,
+            // TODO: должно быть deadline value или value на пикере
+            deadline: deadlineOn ? (deadlineValue) : nil,
             questions: rows
         )
     }
@@ -342,7 +332,8 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         let title = titleText.trimmingCharacters(in: .whitespacesAndNewlines)
 
         let ttlSec: Int? = timeLimitOn ? (ttlMinutesValue * 60) : nil
-        let deadline: Date? = deadlineOn ? (deadlineValue ?? deadlinePicker.date) : nil
+        // TODO: должно быть deadline value или value на пикере
+        let deadline: Date? = deadlineOn ? (deadlineValue) : nil
 
         let qs: [CreateTestRequest.Question] = rows.enumerated().map { idx, row in
             CreateTestRequest.Question(
@@ -416,7 +407,6 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
         if isOptionRow(indexPath) {
             switch optionRows[indexPath.row] {
             case .timeDetail: durationProxyField.becomeFirstResponder()
-            case .deadlineDetail: deadlineProxyField.becomeFirstResponder()
             default: break
             }
         }
@@ -481,11 +471,9 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
             case .deadlineDetail:
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: DeadlineValueCell.reuseID, for: indexPath) as? DeadlineValueCell
                 else { return UITableViewCell() }
-                cell.configure(
-                    date: deadlineValue,
-                    onTap: { [weak self] in self?.deadlineProxyField.becomeFirstResponder() },
-                    formatter: { [weak self] d in self?.format(date: d) ?? "" }
-                )
+                cell.onChange = { [weak self] newVal in
+                    self?.deadlineValue = newVal
+                }
                 return cell
             }
         }
@@ -544,7 +532,6 @@ extension CreateTestViewController {
         if let dd = dto.deadlineAt {
             deadlineOn = true
             deadlineValue = dd
-            deadlinePicker.date = dd
         } else {
             deadlineOn = false
             deadlineValue = nil
