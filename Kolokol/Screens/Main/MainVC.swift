@@ -121,9 +121,9 @@ final class MainViewController: UIViewController, MainViewProtocol {
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.setHidesBackButton(true, animated: true)
         presenter.viewLoaded()
         configureMainBackground()
+        configureNavbar()
         configureConstraints()
         configureCodeField()
         setupDismissKeyboardGesture()
@@ -209,6 +209,28 @@ final class MainViewController: UIViewController, MainViewProtocol {
         waitingCodeLabel.pinCenterX(view.centerXAnchor)
         waitingCodeLabel.pinLeft(view.leadingAnchor, 16)
     }
+    
+    private func configureNavbar() {
+        let backButton = UIButton(type: .system)
+        
+        backButton.setHeight(44)
+        backButton.setWidth(44)
+        backButton.backgroundColor = Colors.surfaceSecondary
+        backButton.layer.cornerRadius = 22
+        backButton.clipsToBounds = true
+
+        if let chevron = UIImage(systemName: "chevron.left")?
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold))
+            .withRenderingMode(.alwaysTemplate) {
+            backButton.setImage(chevron, for: .normal)
+            backButton.tintColor = Colors.textSecondary
+        }
+        
+        backButton.addTarget(self, action: #selector(backButtonPressed), for: .touchUpInside)
+
+        let item = UIBarButtonItem(customView: backButton)
+        navigationItem.leftBarButtonItem = item
+    }
 
     private func configureCodeField() {
         // Любой ввод скрывает ошибку и переключает состояние кнопки
@@ -231,6 +253,10 @@ final class MainViewController: UIViewController, MainViewProtocol {
         UIView.animate(withDuration: 0.15) {
             self.startButton.alpha = isReady ? 1.0 : 0.5
         }
+    }
+    
+    func showFailure() {
+        showError()
     }
 
     private func showError() {
@@ -288,6 +314,10 @@ final class MainViewController: UIViewController, MainViewProtocol {
     @objc
     private func handleRootTap() {
         view.endEditing(true)
+    }
+    
+    @objc private func backButtonPressed() {
+        navigationController?.popViewController(animated: true)
     }
 }
 

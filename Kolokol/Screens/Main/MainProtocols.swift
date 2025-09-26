@@ -14,6 +14,7 @@ protocol MainModelProtocol {
 protocol MainViewProtocol: AnyObject {
     func setCredentials(_ credentials: Credentials, _ email: String)
     func routeToTestScreen(_ questions: [StudentQuestion])
+    func showFailure()
 }
 
 protocol MainPresenterProtocol {

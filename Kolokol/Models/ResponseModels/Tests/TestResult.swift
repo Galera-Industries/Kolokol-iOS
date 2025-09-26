@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct TestsResult: Codable {
+struct TestResult: Codable {
     let attemptId: UUID
     let testId: UUID
     let code6: String
     let title: String
     let startedAt: Date
-    let submittedAt: Date
+    let submittedAt: Date?
     let resultsPublished: Bool
-    let scorePct: Int
-    let grade10: Int
+    let scorePct: Int?
+    let grade10: Int?
     
     enum CodingKeys: String, CodingKey {
         case attemptId = "attempt_id"

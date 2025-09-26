@@ -20,4 +20,5 @@ enum Endpoints: String {
     case startTest = "/attempts/start-by-code"
     case answer = "/attempts/answer"
     case submit = "/attempts/submit"
+    case testsResults = "/me/attempts"
 }

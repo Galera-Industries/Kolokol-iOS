@@ -9,7 +9,7 @@ import Foundation
 
 protocol TestViewModelProtocol {
     func answer(answer: AnswerRequest) async throws -> AnswerResponse
-    func submit() async throws -> EmptyResponse
+    func submit() async throws -> AnswerResponse
 }
 
 protocol TestViewProtocol: AnyObject {

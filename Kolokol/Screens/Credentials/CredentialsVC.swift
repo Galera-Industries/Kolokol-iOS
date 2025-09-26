@@ -42,7 +42,7 @@ final class CredentialsViewController: UIViewController, CredentialsViewProtocol
     }
     
     func routeNext() {
-        navigationController?.pushViewController(MainAssembly.build(), animated: true)
+        navigationController?.pushViewController(TestsListMainAssembly.build(role: "student"), animated: true)
     }
     
     func showError(_ error: String) {
