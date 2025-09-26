@@ -10,54 +10,81 @@ import UIKit
 final class DeadlineValueCell: UITableViewCell {
     static let reuseID = "DeadlineValueCell"
     
-    private let label = UILabel()
-    private var onTap: (() -> Void)?
-    private var formatter: ((Date) -> String)?
+    var onChange: ((Date) -> Void)?
+    
+    private let datePicker: UIDatePicker = {
+        let p = UIDatePicker()
+        p.datePickerMode = .date
+        p.preferredDatePickerStyle = .compact
+        p.minimumDate = Date()
+        p.tintColor = .white
+        return p
+    }()
+    
+    var date: Date? {
+        get { finalizeDate() }
+    }
+    
+    private let timePicker: UIDatePicker = {
+        let p = UIDatePicker()
+        p.datePickerMode = .time
+        p.preferredDatePickerStyle = .compact
+        p.tintColor = .white
+        return p
+    }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
-
         configureUI()
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(tapCell))
-        contentView.addGestureRecognizer(tap)
     }
+    
     required init?(coder: NSCoder) { fatalError() }
     
     private func configureUI() {
         backgroundColor = .clear
-        accessoryType = .disclosureIndicator
-        selectionStyle = .default
+        selectionStyle = .none
         
-        configureLabel()
-    }
-    
-    private func configureLabel() {
-        label.textColor = .white
-        label.font = UIFont(name: "TTCommons-DemiBold", size: 18)
-        contentView.addSubview(label)
+        contentView.addSubview(datePicker)
+        contentView.addSubview(timePicker)
         
-        label.pinTop(contentView.topAnchor, 10)
-        label.pinBottom(contentView.bottomAnchor, 10)
-        label.pinLeft(contentView.leadingAnchor, 20)
-        label.pinRight(contentView.trailingAnchor, 20)
-    }
-    
-    func configure(date: Date?, onTap: @escaping () -> Void, formatter: @escaping (Date) -> String) {
-        self.onTap = onTap
-        self.formatter = formatter
-        update(date: date)
+        datePicker.pinLeft(contentView.leadingAnchor, 20)
+        datePicker.pinCenterY(contentView.centerYAnchor)
+        
+        timePicker.pinRight(contentView.trailingAnchor, 20)
+        timePicker.pinCenterY(contentView.centerYAnchor)
+        
+        datePicker.addTarget(self, action: #selector(updateValue), for: .valueChanged)
+        timePicker.addTarget(self, action: #selector(updateValue), for: .valueChanged)
     }
     
     func update(date: Date?) {
-        if let d = date, let fmt = formatter {
-            label.text = fmt(d)
-            label.textColor = .white
-        } else {
-            label.text = "Выбрать дату"
-            label.textColor = .white
+        guard let date else { return }
+        datePicker.date = date
+        timePicker.date = date
+    }
+    
+    @objc private func updateValue() {
+        if let finalDate = finalizeDate() {
+            onChange?(finalDate)
         }
     }
     
-    @objc private func tapCell() { onTap?() }
+    func finalizeDate() -> Date? {
+        let cal = Calendar.current
+        let dateComponents = cal.dateComponents([.year, .month, .day], from: datePicker.date)
+        let timeComponents = cal.dateComponents([.hour, .minute, .second], from: timePicker.date)
+        
+        var merged = DateComponents()
+        merged.year = dateComponents.year
+        merged.month = dateComponents.month
+        merged.day = dateComponents.day
+        merged.hour = timeComponents.hour
+        merged.minute = timeComponents.minute
+        merged.second = timeComponents.second
+        
+        if let finalDate = cal.date(from: merged) {
+            return finalDate
+        }
+        return nil
+    }
 }
