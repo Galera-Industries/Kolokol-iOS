@@ -7,6 +7,7 @@
 
 import UIKit
 
+
 final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDelegate {    
     enum Section { case remaining, ready }
     

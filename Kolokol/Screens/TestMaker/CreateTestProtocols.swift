@@ -12,6 +12,7 @@ protocol CreateTestModelProtocol {
     func create(_ request: CreateTestRequest) async throws -> CreateTestResponse
     func update(id: UUID, _ request: CreateTestRequest) async throws -> EmptyResponse
     func stop(id: UUID) async throws -> EmptyResponse
+    func fetchStudents() async throws -> GetStudentsResponse
 }
 
 @MainActor
@@ -24,10 +25,13 @@ protocol CreateTestViewProtocol: AnyObject {
     func setPublishedUI(_ published: Bool)
     func showAlert(title: String, message: String)
     func routeToProgress(for id: UUID)
+    func setStudents(all: [GetStudentsResponse.Student])
+//    func setAssignedStudents(_ selected: StudentSelection)
 }
 
 protocol CreateTestPresenterProtocol: AnyObject {
     func viewDidLoad()
     func saveTapped(request: CreateTestRequest, publish: Bool)
     func stopTapped()
+    func chooseStudentsOpened()
 }

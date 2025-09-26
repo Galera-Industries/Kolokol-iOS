@@ -24,6 +24,7 @@ final class TeacherMainModel: TeacherMainModelProtocol {
         }
         
         let response: [TestModel] = try await NetworkService.shared.request(endpoint: Endpoints.teacherTests.rawValue, method: .get, body: nil as EmptyBody?, headers: ["Authorization": "Bearer \(accessToken)"])
+
         return response
     }
     
