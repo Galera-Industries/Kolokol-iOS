@@ -17,6 +17,7 @@ protocol TestViewProtocol: AnyObject {
     func showError(_ error: String)
     func showWaitingRoom()
     func hideWaitingRoom()
+    func goBack()
 }
 
 protocol TestPresenterProtocol {

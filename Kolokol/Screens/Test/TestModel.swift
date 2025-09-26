@@ -25,12 +25,12 @@ final class TestViewModel: TestViewModelProtocol {
         return response
     }
     
-    func submit() async throws -> EmptyResponse {
+    func submit() async throws -> AnswerResponse {
         guard let accessToken = keychain.getString(key: KeychainManager.keyForSaveAccessToken) else {
             throw NetworkError(message: "No access token in keychain") ?? .decodingError
         }
         
-        let response: EmptyResponse = try await NetworkService.shared.request(endpoint: Endpoints.submit.rawValue, method: .post, body: nil as EmptyBody?, headers: ["Authorization": "Bearer \(accessToken)"])
+        let response: AnswerResponse = try await NetworkService.shared.request(endpoint: Endpoints.submit.rawValue, method: .post, body: nil as EmptyBody?, headers: ["Authorization": "Bearer \(accessToken)"])
         
         return response
     }

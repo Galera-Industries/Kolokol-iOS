@@ -86,6 +86,7 @@ final class TestPresenter: TestPresenterProtocol {
         Task {
             do {
                 _ = try await model.submit()
+                view?.goBack()
             } catch {
                 await MainActor.run {
                     view?.showError("Не удалось ответить, повтори попытку позже")
