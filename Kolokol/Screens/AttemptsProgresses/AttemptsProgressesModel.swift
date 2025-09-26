@@ -24,14 +24,23 @@ final class AttemptsProgressesModel : AttemptsProgressesModelProtocol {
         ]
     }
     
-    func getAttemptsRequest() async throws -> EmptyResponse {
-        let response: EmptyResponse = try await NetworkService.shared.request(
-            endpoint: <#String#>,
-            method: <#HTTPMethod#>
+    func getAttemptsRequest(_ testId: UUID) async throws -> GetAttemptsResponse {
+        let response: GetAttemptsResponse = try await NetworkService.shared.request(
+            endpoint: Endpoints.test.rawValue + "/" + testId.uuidString + "/progress",
+            method: .get,
+            body: EmptyBody(),
+            headers: authHeaders()
         )
+        return response
     }
     
-    func publishResultsRequest(_ request: PublishResultsRequest) async throws -> EmptyResponse {
-        <#code#>
+    func publishResultsRequest(_ request: PublishResultsRequest, testId: UUID) async throws -> EmptyResponse {
+        let response: EmptyResponse = try await NetworkService.shared.request(
+            endpoint: Endpoints.test.rawValue + "/" + testId.uuidString + "/publish-results",
+            method: .post,
+            body: request,
+            headers: authHeaders()
+        )
+        return response
     }
 }

@@ -8,16 +8,9 @@
 import Foundation
 
 final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
-    func publish() {
-        
-    }
-    
-    func fetchStudnts() {
-        
-    }
-    
     private weak var view: AttemptsView?
     private let testId: UUID
+    var model: AttemptsProgressesModelProtocol?
     private let keychain: KeychainManagerProtocol
     
     private var itemsById: [UUID: AttemptDisplayItem] = [:]
@@ -96,6 +89,53 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
     private func apply(animated: Bool) {
         let items = itemsById.values.sorted { $0.updatedAt > $1.updatedAt }
         view?.render(items: items, animate: animated)
+    }
+    
+    func publish() {
+        Task {
+            do {
+                let req = PublishResultsRequest(publish: true)
+                let resp = try await model?.publishResultsRequest(req, testId: testId)
+                await MainActor.run {
+                    view?.showPublishResult()
+                }
+            } catch {
+                await MainActor.run {
+                    view?.showError(msg: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func getStudents() {
+        Task {
+            do {
+                let resp = try await model?.getAttemptsRequest(testId)
+                guard let resp = resp else { return }
+                var items: [AttemptDisplayItem] = []
+                for item in resp.items {
+                    let newItem = AttemptDisplayItem(
+                        attemptId: item.attemptId,
+                        firstName: item.firstName,
+                        lastName: item.lastName,
+                        answered: item.answered,
+                        total: item.total,
+                        updatedAt: Date(),
+                        tg: item.tg,
+                        assessed: item.assessed == "done",
+                        result: item.result
+                    )
+                    items.append(newItem)
+                }
+                await MainActor.run {
+                    view?.showGetStudents(items: items)
+                }
+            } catch {
+                await MainActor.run {
+                    view?.showError(msg: error.localizedDescription)
+                }
+            }
+        }
     }
 }
 
