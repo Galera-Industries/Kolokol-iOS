@@ -11,6 +11,8 @@ import Foundation
 protocol AttemptsView : AnyObject {
     func render(items: [AttemptDisplayItem], animate: Bool)
     func showPublishResult()
+    func showError(msg: String)
+    func showGetStudents(items: [AttemptDisplayItem])
 }
 
 @MainActor
@@ -18,10 +20,10 @@ protocol AttemptsPresenterProtocol : AnyObject {
     func attach()
     func detach()
     func publish()
-    func getStudnts()
+    func getStudents()
 }
 
 protocol AttemptsProgressesModelProtocol {
-    func getAttemptsRequest() async throws -> EmptyResponse
-    func publishResultsRequest(_ request: PublishResultsRequest) async throws -> EmptyResponse
+    func getAttemptsRequest(_ testId: UUID) async throws -> GetAttemptsResponse
+    func publishResultsRequest(_ request: PublishResultsRequest, testId: UUID) async throws -> EmptyResponse
 }

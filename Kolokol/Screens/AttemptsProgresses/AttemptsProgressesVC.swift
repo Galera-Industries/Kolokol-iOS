@@ -48,7 +48,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        presenter?.attach()
+        presenter?.getStudents()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -198,5 +198,26 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
         lastItemsById = newById
         
         tableView.backgroundView = nil
+    }
+}
+
+extension AttemptsProgressesVC {
+    func showPublishResult() {
+        let alertController = UIAlertController(title: "Отлично!", message: "Результаты были успешно опубликованы!", preferredStyle: .alert)
+        let ok = UIAlertAction(title: "Ok, спасибо", style: .default)
+        alertController.addAction(ok)
+        self.present(alertController, animated: true)
+    }
+    
+    func showError(msg: String) {
+        let alertController = UIAlertController(title: "Ooops, error", message: msg, preferredStyle: .alert)
+        let ok = UIAlertAction(title: "Ok, this is terrible", style: .default)
+        alertController.addAction(ok)
+        self.present(alertController, animated: true)
+    }
+    
+    func showGetStudents(items: [AttemptDisplayItem]) {
+        render(items: items, animate: false)
+        presenter?.attach()
     }
 }
