@@ -14,19 +14,20 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
     private let model: CreateTestModelProtocol
 
     // MARK: - State
-    private var currentID: UUID?
+    private var current: TestModel?
     private var isPublished = false
 
     // MARK: - Init
-    init(view: CreateTestViewProtocol, model: CreateTestModelProtocol, initialID: UUID?) {
+    init(view: CreateTestViewProtocol, model: CreateTestModelProtocol, initial: TestModel?) {
         self.view = view
         self.model = model
-        self.currentID = initialID
+        self.current = initial
     }
 
     // MARK: - Lifecycle
     func viewDidLoad() {
-        guard let id = currentID else { return }
+        guard let test = current,
+              let id = UUID(uuidString: test.id) else { return }
 
         Task { @MainActor [weak self] in
             guard let self, let view = self.view else { return }
@@ -34,7 +35,7 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
             defer { view.setLoading(false) }
 
             do {
-                let dto = try await self.model.fetchEdit(id: id)
+                let dto = try await model.fetchEdit(id: id)
                 self.isPublished = dto.published
                 view.fillFromEdit(dto)
             } catch {
@@ -57,15 +58,49 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
             view.setLoading(true)
             defer { view.setLoading(false) }
 
-            if let id = self.currentID {
+            if let id = current?.id {
                 // PUT /tests/{id}
                 do {
-                    _ = try await self.model.update(id: id, request)
+                    guard let uuid = UUID(uuidString: id),
+                          let currentTest = current else { return }
+                    let response = try await model.update(id: uuid, request)
                     if publish {
                         self.isPublished = true
                         view.setPublishedUI(true)
+                        let test = TestModel(
+                            id: currentTest.id,
+                            code6: String(currentTest.code6),
+                            title: request.title,
+                            published: true,
+                            resultsPublished: request.resultsPublished,
+                            answersVisible: request.answersVisible,
+                            isStopped: false,
+                            publishedAt: Date(),
+                            deadlineAt: request.deadlineAt,
+                            participants: 0,
+                            questions: request.questions.count,
+                            createdAt: currentTest.createdAt,
+                            updatedAt: Date()
+                        )
+                        NotificationCenter.default.post(name: .testUpdatedEvent, object: nil, userInfo: ["test": test])
                         view.showAlert(title: "Опубликовано", message: "Тест успешно опубликован.")
                     } else {
+                        let test = TestModel(
+                            id: currentTest.id,
+                            code6: String(currentTest.code6),
+                            title: request.title,
+                            published: false,
+                            resultsPublished: request.resultsPublished,
+                            answersVisible: request.answersVisible,
+                            isStopped: false,
+                            publishedAt: nil,
+                            deadlineAt: request.deadlineAt,
+                            participants: 0,
+                            questions: request.questions.count,
+                            createdAt: currentTest.createdAt,
+                            updatedAt: Date()
+                        )
+                        NotificationCenter.default.post(name: .testUpdatedEvent, object: nil, userInfo: ["test": test])
                         view.showAlert(title: "Сохранено", message: "Изменения сохранены.")
                     }
                 } catch {
@@ -74,17 +109,47 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
             } else {
                 // POST /tests
                 do {
-                    let created = try await self.model.create(request)
-                    if let uuid = UUID(uuidString: created.id.uuidString) {
-                        self.currentID = uuid
-                    }
+                    let created = try await model.create(request)
+                    current?.id = created.id.uuidString
                     view.setCode(created.code)
 
                     if publish {
                         self.isPublished = true
                         view.setPublishedUI(true)
+                        let test = TestModel(
+                            id: created.id.uuidString,
+                            code6: String(created.code),
+                            title: request.title,
+                            published: true,
+                            resultsPublished: request.resultsPublished,
+                            answersVisible: request.answersVisible,
+                            isStopped: false,
+                            publishedAt: Date(),
+                            deadlineAt: request.deadlineAt,
+                            participants: 0,
+                            questions: request.questions.count,
+                            createdAt: Date(),
+                            updatedAt: Date()
+                        )
+                        NotificationCenter.default.post(name: .testCreatedEvent, object: nil, userInfo: ["test": test])
                         view.showAlert(title: "Опубликовано", message: "Тест успешно создан и опубликован.")
                     } else {
+                        let test = TestModel(
+                            id: created.id.uuidString,
+                            code6: String(created.code),
+                            title: request.title,
+                            published: false,
+                            resultsPublished: request.resultsPublished,
+                            answersVisible: request.answersVisible,
+                            isStopped: false,
+                            publishedAt: nil,
+                            deadlineAt: request.deadlineAt,
+                            participants: 0,
+                            questions: request.questions.count,
+                            createdAt: Date(),
+                            updatedAt: Date()
+                        )
+                        NotificationCenter.default.post(name: .testCreatedEvent, object: nil, userInfo: ["test": test])
                         view.showAlert(title: "Сохранено", message: "Тест успешно создан.")
                     }
                 } catch {
@@ -95,7 +160,8 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
     }
 
     func stopTapped() {
-        guard let id = currentID else { return }
+        guard let test = current,
+        let id = UUID(uuidString: test.id) else { return }
 
         Task { @MainActor [weak self] in
             guard let self, let view = self.view else { return }

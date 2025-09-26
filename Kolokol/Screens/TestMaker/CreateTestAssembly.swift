@@ -8,11 +8,11 @@
 import UIKit
 
 enum CreateTestAssembly {
-    static func build(testId: UUID? = nil) -> UIViewController {
+    static func build(test: TestModel? = nil) -> UIViewController {
         let keychain = KeychainManager()
-        let vc = CreateTestViewController(testID: testId)
+        let vc = CreateTestViewController(test: test)
         let model = CreateTestModel(keychain)
-        let presenter = CreateTestPresenter(view: vc, model: model, initialID: testId)
+        let presenter = CreateTestPresenter(view: vc, model: model, initial: test)
         vc.presenter = presenter
         return vc
     }

@@ -11,7 +11,8 @@ enum TeacherMainAssembly {
     static func build() -> UIViewController {
         let view = TeacherMainViewController()
         let keychain = KeychainManager()
-        let model = TeacherMainModel(keychain: keychain)
+        let userDefaults = UserDefaultsManager()
+        let model = TeacherMainModel(keychain: keychain, userDefaults: userDefaults)
         let presenter = TeacherMainPresenter(view: view, model: model)
         view.presenter = presenter
         return view

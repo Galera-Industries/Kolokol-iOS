@@ -10,6 +10,7 @@ import Foundation
 protocol CodeEnteringModelProtocol {
     func sendOtpConfirmationRequest(_ request: ConfirmOTPRequest) async throws -> ConfirmOTPResponse
     func sendConfirmationCodeAgainRequest(_ request: OTPRequest) async throws -> OTPResponse
+    func loadCredentialsForTeacher(_ email: String)
 }
 
 protocol CodeEnteringViewProtocol: AnyObject {

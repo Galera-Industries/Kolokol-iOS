@@ -7,7 +7,8 @@
 
 import UIKit
 
-final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDelegate {
+
+final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDelegate {    
     enum Section { case remaining, ready }
     
     private let tableView = UITableView(frame: .zero, style: .plain)

@@ -17,7 +17,7 @@ protocol CreateTestModelProtocol {
 
 @MainActor
 protocol CreateTestViewProtocol: AnyObject {
-    var testID: UUID? { get set }
+    var test: TestModel? { get set }
 
     func setLoading(_ loading: Bool)
     func fillFromEdit(_ dto: EditTestResponse)
