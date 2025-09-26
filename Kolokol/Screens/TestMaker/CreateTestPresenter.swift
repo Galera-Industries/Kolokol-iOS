@@ -130,4 +130,19 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
     private func localized(_ error: Error) -> String {
         (error as? NetworkError)?.localizedDescription ?? error.localizedDescription
     }
+    
+    func chooseStudentsOpened() {
+        Task {
+            do {
+                let resp = try await model.fetchStudents()
+                await MainActor.run {
+                    view?.setStudents(all: resp.students)
+                }
+            } catch {
+                await MainActor.run {
+                    view?.showAlert(title: "Уупс", message: self.localized(error))
+                }
+            }
+        }
+    }
 }

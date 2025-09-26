@@ -16,4 +16,5 @@ enum Endpoints: String {
     case teacherTests = "/teacher/tests"
     case test = "/tests"
     case credentials = "/users/profile"
+    case getStudent = "/teacher/students"
 }

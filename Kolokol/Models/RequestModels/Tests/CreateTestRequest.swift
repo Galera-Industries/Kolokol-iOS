@@ -32,6 +32,8 @@ struct CreateTestRequest : Codable {
     let answersVisible: Bool
     let questions: [Question]
     let testId: UUID?
+    let assignees: [String]
+    let assignedMode: AssignedMode
     
     enum CodingKeys: String, CodingKey {
         case title
@@ -43,10 +45,12 @@ struct CreateTestRequest : Codable {
         case answersVisible = "answers_visible"
         case questions
         case testId
+        case assigness
+        case assignedMode = "assigned_mode"
     }
 }
 
-struct EditTestResponse: Codable {
+struct EditTestResponse : Codable {
     struct QuestionDTO: Codable {
         let type: QuestionType
         let text: String
@@ -60,7 +64,7 @@ struct EditTestResponse: Codable {
             case imageUrl = "image_url"
         }
     }
-
+    
     let title: String
     let published: Bool
     let deadlineAt: Date?
@@ -69,24 +73,31 @@ struct EditTestResponse: Codable {
     let resultsPublished: Bool
     let answersVisible: Bool
     let questions: [QuestionDTO]
+    let assignees: [String]
+    let assignedMode: AssignedMode
+    
 
     enum CodingKeys: String, CodingKey {
-        case title, published, questions
+        case title, published, questions, assignees
         case deadlineAt = "deadline_at"
         case timeLimitSec = "time_limit_sec"
         case scoringMode = "scoring_mode"
         case resultsPublished = "results_published"
         case answersVisible = "answers_visible"
+        case assignedMode = "assigned_mode"
     }
 }
-
-enum ScoringMode: String, Codable {
+enum AssignedMode : String, Codable {
+    case all
+    case selected
+}
+enum ScoringMode : String, Codable {
     case equal
     case weighted
 }
 
 
-struct Options: Codable {
+struct Options : Codable {
     let choices: [Choice]?
     let correctIDs: [Int]?
     let correctText: String?
