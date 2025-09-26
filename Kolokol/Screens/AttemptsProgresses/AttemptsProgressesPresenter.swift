@@ -8,6 +8,14 @@
 import Foundation
 
 final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
+    func publish() {
+        
+    }
+    
+    func fetchStudnts() {
+        
+    }
+    
     private weak var view: AttemptsView?
     private let testId: UUID
     private let keychain: KeychainManagerProtocol
@@ -22,8 +30,8 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
     }
     
     func attach() {
-        guard let bearer = keychain.getUUID(key: KeychainManager.keyForSaveAccessToken) else { return }
-        let stream = WebSocketService.shared.openTestProgressStream(testId: testId, bearer: bearer.uuidString)
+        guard let bearer = keychain.getString(key: KeychainManager.keyForSaveAccessToken) else { return }
+        let stream = WebSocketService.shared.openTestProgressStream(testId: testId, bearer: bearer)
         streamTask = Task { [weak self] in
             guard let self else { return }
             do {
@@ -68,18 +76,21 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
     }
     
     private func upsert(from e: StudentEventData) {
-        if let old = itemsById[e.attempt_id], e.answered < old.answered {
+        if let old = itemsById[e.attemptId], e.answered < old.answered {
             return
         }
         let item = AttemptDisplayItem(
-            attemptId: e.attempt_id,
-            firstName: e.first_name,
-            lastName: e.last_name,
+            attemptId: e.attemptId,
+            firstName: e.firstName,
+            lastName: e.lastName,
             answered: e.answered,
             total: e.total,
-            updatedAt: e.updated_at
+            updatedAt: e.updatedAt,
+            tg: e.tg,
+            assessed: e.assessed,
+            result: e.result
         )
-        itemsById[e.attempt_id] = item
+        itemsById[e.attemptId] = item
     }
     
     private func apply(animated: Bool) {
@@ -96,6 +107,8 @@ struct AttemptDisplayItem: Hashable {
     let answered: Int
     let total: Int
     let updatedAt: Date
-    
+    let tg: String
+    let assessed: Bool
+    let result: Int?
     var fullName: String { "\(lastName) \(firstName)" }
 }
