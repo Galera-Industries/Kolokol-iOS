@@ -11,7 +11,7 @@ final class TestViewController: UIViewController, TestViewProtocol {
     var presenter: TestPresenterProtocol!
 
     private var answers: [String] = []
-    private var questions: [Question] = []
+    private var questions: [StudentQuestion] = []
 
     private var tableBottomToNextButton: NSLayoutConstraint?
     private var tableBottomToKeyboard: NSLayoutConstraint?
@@ -185,11 +185,11 @@ final class TestViewController: UIViewController, TestViewProtocol {
     }
 
     // MARK: - Methods
-    func showQuestions(_ questions: [Question]) {
+    
+    func showQuestions(_ questions: [StudentQuestion]) {
         self.questions = questions
-
         self.answers = Array(repeating: "", count: questions.count)
-
+        
         selectedIndex = IndexPath(item: 0, section: 0)
         questionLabel.text = questions.first?.text
 
@@ -204,10 +204,11 @@ final class TestViewController: UIViewController, TestViewProtocol {
                                hasAnswer: hasAnswer(at: index.item))
             }
         }
-
+        
         updateNextButtonTitle()
         tableView.reloadData()
     }
+    
 
     func showError(_ error: String) {
         let ac = UIAlertController(title: "Ошибка", message: error, preferredStyle: .alert)
@@ -438,7 +439,7 @@ final class TestViewController: UIViewController, TestViewProtocol {
 
         let finish = UIAlertAction(title: "Закончить", style: .destructive) { [weak self] _ in
             // TODO: обработка завершения
-            // self?.presenter?.didFinish() // пример
+            self?.presenter.submit()
         }
 
         let cancel = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
@@ -472,10 +473,11 @@ final class TestViewController: UIViewController, TestViewProtocol {
 
     // Отправляет сообщение на бек, что на вопрос с данным индексом был дан ответ
     private func reportAnsweredIfNeeded(for index: Int) {
-        guard hasAnswer(at: index) else { return }
+        guard hasAnswer(at: index),
+              let id = UUID(uuidString: questions[index].id) else { return }
         // TODO: - дергаем презентер
         print("Отправляем данные на бек что дан ответ на вопрос")
-        // presenter.notifyAnswered(questionId: questions[index].id)
+        presenter.answer(id, answers[index].trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     // MARK: - Actions
@@ -502,6 +504,7 @@ final class TestViewController: UIViewController, TestViewProtocol {
             reportAnsweredIfNeeded(for: current.item)
             presentFinishSheet()
         } else {
+            reportAnsweredIfNeeded(for: current.item)
             let next = IndexPath(item: current.item + 1, section: 0)
             selectNumber(at: next, animated: true, scrollPosition: .centeredHorizontally)
         }

@@ -25,4 +25,18 @@ final class MainPresenter: MainPresenterProtocol {
         guard let email = keychain.getString(key: KeychainManager.keyForSaveEmail) else { return }
         view?.setCredentials(credentials, email)
     }
+    
+    func startTest(withCode code: String) {
+        Task {
+            do {
+                let response = try await model.startTest(code: code)
+                await MainActor.run {
+                    view?.routeToTestScreen(response.test.questions)
+                }
+            } catch {
+                
+            }
+        }
+    }
+    
 }

@@ -92,8 +92,8 @@ enum AssignedMode : String, Codable {
     case selected
 }
 enum ScoringMode : String, Codable {
-    case equal
-    case weighted
+    case equal = "equal"
+    case weighted = "weighted"
 }
 
 

@@ -17,4 +17,7 @@ enum Endpoints: String {
     case test = "/tests"
     case credentials = "/users/profile"
     case getStudent = "/teacher/students"
+    case startTest = "/attempts/start-by-code"
+    case answer = "/attempts/answer"
+    case submit = "/attempts/submit"
 }

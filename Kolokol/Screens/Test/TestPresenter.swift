@@ -14,7 +14,7 @@ final class TestPresenter: TestPresenterProtocol {
 
     private var isStartedFlag: Bool = false
     private var code: String?
-    private var preloaded: [Question]?
+    private var preloaded: [StudentQuestion]?
 
     private var pollingTask: Task<Void, Never>?
 
@@ -24,7 +24,7 @@ final class TestPresenter: TestPresenterProtocol {
         self.keychain = keychain
     }
 
-    func configure(isStarted: Bool, code: String?, preloadedQuestions: [Question]?) {
+    func configure(isStarted: Bool, code: String?, preloadedQuestions: [StudentQuestion]?) {
         self.isStartedFlag = isStarted
         self.code = code
         self.preloaded = preloadedQuestions
@@ -51,13 +51,12 @@ final class TestPresenter: TestPresenterProtocol {
             guard let self else { return }
             do {
                 while !Task.isCancelled {
-                    if let questions = try await self.model.pollStart(code: code), !questions.isEmpty {
-                        await MainActor.run {
-                            self.view?.showQuestions(questions)
-                            self.view?.hideWaitingRoom()
-                        }
-                        break
-                    }
+                    //let response = try await model.startTest(code: code)
+//                    await MainActor.run {
+//                        self.view?.showQuestions(response.test.questions)
+//                        self.view?.hideWaitingRoom()
+//
+//                    }
                 }
             } catch {
                 await MainActor.run {
@@ -66,6 +65,36 @@ final class TestPresenter: TestPresenterProtocol {
             }
         }
     }
+    
+    func answer(_ questionId: UUID, _ answer: String) {
+        Task {
+            do {
+                let request = AnswerRequest(questionId: questionId, text: answer)
+                _ = try await model.answer(answer: request)
+            } catch {
+                
+                await MainActor.run {
+                    view?.showError("Не удалось ответить, повтори попытку позже")
+                }
+                
+                debugPrint(error.localizedDescription)
+            }
+        }
+    }
+    
+    func submit() {
+        Task {
+            do {
+                _ = try await model.submit()
+            } catch {
+                await MainActor.run {
+                    view?.showError("Не удалось ответить, повтори попытку позже")
+                }
+                debugPrint(error.localizedDescription)
+            }
+        }
+    }
+    
 
     deinit {
         pollingTask?.cancel()

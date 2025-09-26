@@ -12,6 +12,7 @@ final class MainViewController: UIViewController, MainViewProtocol {
 
     private var codeFieldBottomToStartButton: NSLayoutConstraint?
     private var codeFieldBottomToKeyboard: NSLayoutConstraint?
+    private var code: String?
 
     // MARK: - UI Components
     private lazy var titleLabel: UILabel = {
@@ -158,6 +159,10 @@ final class MainViewController: UIViewController, MainViewProtocol {
         emailLabel.text = email
     }
     
+    func routeToTestScreen(_ questions: [StudentQuestion]) {
+        navigationController?.pushViewController(TestAssembly.buildStarted(preloadedQuestions: questions), animated: true)
+    }
+    
     
     // MARK: - Private Methods
     private func configureConstraints() {
@@ -211,11 +216,13 @@ final class MainViewController: UIViewController, MainViewProtocol {
             guard let self else { return }
             self.hideError()
             self.updateStartButtonState(isReady: (count == 6))
+            if count != 6 { code = nil }
         }
 
         // Когда введено 6 символов кнопка активируется
-        codeField.onComplete = { [weak self] _ in
+        codeField.onComplete = { [weak self] code in
             self?.updateStartButtonState(isReady: true)
+            self?.code = code
         }
     }
 
@@ -260,7 +267,8 @@ final class MainViewController: UIViewController, MainViewProtocol {
     @objc
     private func startButtonPressed() {
         // TODO: - Отправить запрос на бек. В случае если неудача (код не существует) вызвать showError
-        showError()
+        guard let code = code else { return }
+        presenter.startTest(withCode: code)
     }
 
     @objc

@@ -8,19 +8,21 @@
 import Foundation
 
 protocol TestViewModelProtocol {
-    func pollStart(code: String) async throws -> [Question]?
-    func fetchTasks(code: String) async throws -> [Question]
+    func answer(answer: AnswerRequest) async throws -> AnswerResponse
+    func submit() async throws -> EmptyResponse
 }
 
 protocol TestViewProtocol: AnyObject {
-    func showQuestions(_ questions: [Question])
+    func showQuestions(_ questions: [StudentQuestion])
     func showError(_ error: String)
     func showWaitingRoom()
     func hideWaitingRoom()
 }
 
 protocol TestPresenterProtocol {
-    func configure(isStarted: Bool, code: String?, preloadedQuestions: [Question]?)
+    func configure(isStarted: Bool, code: String?, preloadedQuestions: [StudentQuestion]?)
+    func answer(_ questionId: UUID, _ answer: String)
+    func submit()
     func viewDidLoad()
 }
 

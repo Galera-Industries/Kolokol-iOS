@@ -359,7 +359,9 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 resultsPublished: false,
                 answersVisible: false,
                 questions: qs,
-                testId: uuid
+                testId: uuid,
+                assignees: [],
+                assignedMode: .all
             )
         } else {
             return CreateTestRequest(
@@ -371,7 +373,9 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 resultsPublished: false,
                 answersVisible: false,
                 questions: qs,
-                testId: nil
+                testId: nil,
+                assignees: [],
+                assignedMode: .all
             )
         }
     }
@@ -415,7 +419,7 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         guard isQuestionRow(indexPath) else { return nil }
-        let localIndex = indexPath.row - optionRows.count - 1
+        let localIndex = indexPath.row - optionRows.count - 2
         let delete = UIContextualAction(style: .destructive, title: "Удалить") { [weak self] _, _, done in
             self?.rows.remove(at: localIndex)
             tableView.deleteRows(at: [indexPath], with: .automatic)

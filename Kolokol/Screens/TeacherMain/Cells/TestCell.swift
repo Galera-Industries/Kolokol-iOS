@@ -160,7 +160,11 @@ final class TestCell: UITableViewCell {
         participants.text = String(test.participants)
         questions.text = String(test.questions)
         if let publishedAt = test.publishedAt {
-            timerText.text = "до конца"
+            if test.deadlineAt != nil {
+                timerText.text = test.isStopped ? "Завершен" : "до конца"
+            } else {
+                timerText.text = test.isStopped ? "Завершен" : "Лимит по времени"
+            }
             startAt = publishedAt
             deadlineAt = test.deadlineAt
             updateNow()
