@@ -8,10 +8,6 @@
 import UIKit
 
 final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDelegate {
-    func showPublishResult() {
-        //
-    }
-    
     enum Section { case remaining, ready }
     
     private let tableView = UITableView(frame: .zero, style: .plain)
