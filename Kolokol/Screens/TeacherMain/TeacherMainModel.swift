@@ -16,7 +16,11 @@ final class TeacherMainModel: TeacherMainModelProtocol {
     }
     
     func fetchTests() async throws -> [TestModel] {
-        let response: [TestModel] = try await NetworkService.shared.request(endpoint: Endpoints.teacherTests.rawValue, method: .get, body: nil as EmptyBody?)
+        let response: [TestModel] = try await NetworkService.shared.request(
+            endpoint: Endpoints.teacherTests.rawValue,
+            method: .get,
+            body: Optional<String>.none
+        )
         return response
     }
 }

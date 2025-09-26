@@ -67,4 +67,16 @@ final class CreateTestModel: CreateTestModelProtocol {
         )
         return resp
     }
+    
+    func fetchStudents() async throws -> GetStudentsResponse {
+        let endpoint = Endpoints.getStudent.rawValue
+        let resp: GetStudentsResponse = try await NetworkService.shared.request(
+            endpoint: endpoint,
+            method: .get,
+            body: Optional<String>.none,
+            headers: authHeaders()
+        )
+        
+        return resp
+    }
 }

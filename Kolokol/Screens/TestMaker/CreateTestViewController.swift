@@ -36,6 +36,9 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
     var testID: UUID?
     private var isPublished = false
     
+    private var allStudents: [GetStudentsResponse.Student] = []
+    private var currentSelection: StudentSelection = .all
+    
     var onSave: ((TestDraft) -> Void)?
     var onPublish: ((TestDraft) -> Void)?
     var onAddQuestion: (() -> Void)?
@@ -90,7 +93,7 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         return IndexPath(row: row, section: 0)
     }
     
-    private var totalRowsCount: Int { optionRows.count + rows.count + 1 }
+    private var totalRowsCount: Int { optionRows.count + rows.count + 2 }
     
     init(testID: UUID? = nil) {
         self.testID = testID
@@ -111,7 +114,6 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
 
         configureUI()
 
-        // До получения кода выключим плашку
         codeRowView.setEnabled(false)
 
         rows = []
@@ -143,6 +145,7 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         tableView.rowHeight = UITableView.automaticDimension
         tableView.keyboardDismissMode = .onDrag
         
+        tableView.register(AssignCell.self, forCellReuseIdentifier: AssignCell.reuseId)
         tableView.register(SwitchCell.self, forCellReuseIdentifier: SwitchCell.reuseID)
         tableView.register(TTLValueCell.self, forCellReuseIdentifier: TTLValueCell.reuseID)
         tableView.register(DeadlineValueCell.self, forCellReuseIdentifier: DeadlineValueCell.reuseID)
@@ -344,7 +347,12 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 options: nil
             )
         }
-
+        var asMode = AssignedMode.all
+        var assigness: [String] = []
+        if case let .some(set) = currentSelection {
+            asMode = .selected
+            assigness = Array(set)
+        }
         return CreateTestRequest(
             title: title,
             published: publish,
@@ -354,7 +362,9 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
             resultsPublished: false,
             answersVisible: false,
             questions: qs,
-            testId: testID
+            testId: testID,
+            assignees: assigness,
+            assignedMode: asMode
         )
     }
     
@@ -377,14 +387,18 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
         totalRowsCount
     }
     
+    private func isAssignRow(_ indexPath: IndexPath) -> Bool {
+        indexPath.row == 0
+    }
+    
     private func isOptionRow(_ indexPath: IndexPath) -> Bool {
-        indexPath.section == 0 && indexPath.row < optionRows.count
+        indexPath.section == 0 && 0 < indexPath.row && indexPath.row < optionRows.count + 1
     }
     private func isQuestionRow(_ indexPath: IndexPath) -> Bool {
-        indexPath.section == 0 && indexPath.row >= optionRows.count + 1
+        indexPath.section == 0 && indexPath.row >= optionRows.count + 2
     }
     private func isAddQuestionRow(_ indexPath: IndexPath) -> Bool {
-        indexPath.section == 0 && indexPath.row == optionRows.count
+        indexPath.section == 0 && indexPath.row == optionRows.count + 1
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -404,8 +418,17 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if isAssignRow(indexPath) {
+            if let cell = tableView.cellForRow(at: indexPath) as? AssignCell {
+                if allStudents.isEmpty {
+                    presenter?.chooseStudentsOpened()
+                } else {
+                    cell.handleTap()
+                }
+            }
+        }
         if isOptionRow(indexPath) {
-            switch optionRows[indexPath.row] {
+            switch optionRows[indexPath.row - 1] {
             case .timeDetail: durationProxyField.becomeFirstResponder()
             default: break
             }
@@ -415,8 +438,22 @@ extension CreateTestViewController: UITableViewDataSource, UITableViewDelegate {
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if isAssignRow(indexPath) {
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: AssignCell.reuseId, for: indexPath) as? AssignCell
+            else { return UITableViewCell() }
+
+            let vm = AssignCell.ViewModel(
+                title: "Назначен",
+                selection: currentSelection,
+                totalCount: allStudents.count
+            )
+            cell.configure(vm) { [weak self] in
+                self?.presentStudentsPicker()
+            }
+            return cell
+        }
         if isOptionRow(indexPath) {
-            switch optionRows[indexPath.row] {
+            switch optionRows[indexPath.row - 1] {
             case .timeSwitch:
                 guard let cell = tableView.dequeueReusableCell(withIdentifier: SwitchCell.reuseID, for: indexPath) as? SwitchCell
                 else { return UITableViewCell() }
@@ -508,7 +545,6 @@ extension CreateTestViewController {
     func setLoading(_ loading: Bool) {
         view.isUserInteractionEnabled = !loading
         loading ? UINotificationFeedbackGenerator().prepare() : ()
-        // можно добавить системный индикатор/оверлей при желании
     }
 
     func fillFromEdit(_ dto: EditTestResponse) {
@@ -535,6 +571,11 @@ extension CreateTestViewController {
         } else {
             deadlineOn = false
             deadlineValue = nil
+        }
+        
+        if dto.assignedMode != .all {
+            let ids = Set(dto.assignees)
+            currentSelection = .some(ids)
         }
 
         rows = dto.questions.enumerated().map { idx, q in
@@ -608,6 +649,49 @@ extension CreateTestViewController {
     }
 }
 
+extension CreateTestViewController {
+    private func presentStudentsPicker() {
+        let items: [StudentsPickerViewController.Student] = allStudents.map {
+            .init(id: $0.id, firstName: $0.firstName, lastName: $0.lastName, tg: $0.tg)
+        }
+
+        let vc = StudentsPickerViewController(
+            students: items,
+            preselected: currentSelection
+        ) { [weak self] newSelection in
+            guard let self else { return }
+            self.currentSelection = self.normalized(selection: newSelection, total: items.count)
+            let first = IndexPath(row: 0, section: 0)
+            if let cell = self.tableView.cellForRow(at: first) as? AssignCell {
+                cell.configure(.init(title: "Назначен", selection: self.currentSelection, totalCount: self.allStudents.count)) { [weak self] in
+                    self?.presentStudentsPicker()
+                }
+            } else {
+                self.tableView.reloadRows(at: [first], with: .none)
+            }
+        }
+
+        let nav = UINavigationController(rootViewController: vc)
+        nav.modalPresentationStyle = .formSheet
+        present(nav, animated: true)
+    }
+    
+    private func normalized(selection: StudentSelection, total: Int) -> StudentSelection {
+        switch selection {
+        case .all: return .all
+        case .some(let ids):
+            return ids.count == total ? .all : .some(ids)
+        }
+    }
+    
+    func setStudents(all: [GetStudentsResponse.Student]) {
+        allStudents = all
+        guard let cell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as? AssignCell else { return }
+        cell.handleTap()
+    }
+    
+}
+
 // MARK: - PrimaryActionButton (как было)
 final class PrimaryActionButton: UIButton {
     init(title: String) {
@@ -632,8 +716,6 @@ final class PrimaryActionButton: UIButton {
     }
     required init?(coder: NSCoder) { fatalError() }
 }
-
-
 
 final class SimpleTextQuestionVC: UIViewController, UITextViewDelegate {
     var onDone: ((String) -> Void)?

@@ -28,7 +28,7 @@ final class AttemptsProgressesModel : AttemptsProgressesModelProtocol {
         let response: GetAttemptsResponse = try await NetworkService.shared.request(
             endpoint: Endpoints.test.rawValue + "/" + testId.uuidString + "/progress",
             method: .get,
-            body: EmptyBody(),
+            body: Optional<String>.none,
             headers: authHeaders()
         )
         return response
