@@ -7,52 +7,104 @@
 
 import UIKit
 
-class StepProgressView: UIProgressView {
-    private(set) var steps: Int
+final class StepProgressView: UIView {
+    private(set) var steps: Int = 1
     private(set) var currentStep: Int = 0
-
+    
+    var cornerRadius: CGFloat = 32 {
+        didSet {
+            trackView.layer.cornerRadius = cornerRadius
+            fillView.layer.cornerRadius = cornerRadius
+        }
+    }
+    var trackColor: UIColor = Colors.surfaceSecondary.withAlphaComponent(0.25) {
+        didSet { trackView.backgroundColor = trackColor }
+    }
+    var fillColor: UIColor = Colors.surfaceSecondary.withAlphaComponent(0.15) {
+        didSet { fillView.backgroundColor = fillColor }
+    }
+    
+    private let trackView = UIView()
+    private let fillView = UIView()
+    private var fillWidthConstraint: NSLayoutConstraint?
+    
     init(steps: Int) {
-        self.steps = max(1, steps)
         super.init(frame: .zero)
-        self.progress = 0.0
-        self.trackTintColor = .lightGray
-        self.progressTintColor = .systemBlue
-        self.translatesAutoresizingMaskIntoConstraints = false
-    }
-
-    required init(coder: NSCoder) { fatalError() }
-
-    override func setProgress(_ progress: Float, animated: Bool) {
-        super.setProgress(progress, animated: animated)
-        progressTintColor = progress >= 1.0 ? .systemGreen : .systemBlue
-    }
-
-    func increment() {
-        setCurrentStep(currentStep + 1, animated: true, allowRegression: false)
-    }
-
-    func reset() {
-        currentStep = 0
-        setProgress(0.0, animated: false)
-        progressTintColor = .systemBlue
-    }
-
-    func setSteps(_ steps: Int) {
         self.steps = max(1, steps)
-        // пересчитать прогресс с учётом нового знаменателя
-        applyProgress(animated: false)
+        setup()
     }
-
-    func setCurrentStep(_ step: Int, animated: Bool, allowRegression: Bool = false) {
-        let clamped = max(0, min(step, steps))
-        if !allowRegression && clamped < currentStep { return } // ignore regress
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+    
+    private func setup() {
+        trackView.backgroundColor = trackColor
+        fillView.backgroundColor = fillColor
+        trackView.layer.cornerRadius = cornerRadius
+        fillView.layer.cornerRadius = cornerRadius
+        trackView.layer.masksToBounds = true
+        fillView.layer.masksToBounds = true
+        
+        addSubview(trackView)
+        trackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            trackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            trackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            trackView.topAnchor.constraint(equalTo: topAnchor),
+            trackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            heightAnchor.constraint(equalToConstant: 86)
+        ])
+        
+        trackView.addSubview(fillView)
+        fillView.translatesAutoresizingMaskIntoConstraints = false
+        fillWidthConstraint = fillView.widthAnchor.constraint(equalTo: trackView.widthAnchor, multiplier: 0)
+        fillWidthConstraint?.priority = .defaultHigh
+        
+        guard let fillWidthConstraint = fillWidthConstraint else { return }
+        NSLayoutConstraint.activate([
+            fillView.leadingAnchor.constraint(equalTo: trackView.leadingAnchor),
+            fillView.topAnchor.constraint(equalTo: trackView.topAnchor),
+            fillView.bottomAnchor.constraint(equalTo: trackView.bottomAnchor),
+            fillWidthConstraint
+        ])
+    }
+    
+    func setSteps(_ total: Int) {
+        steps = max(1, total)
+        setCurrentStep(currentStep, animated: false, allowRegression: true)
+    }
+    
+    func setCurrentStep(_ current: Int, animated: Bool, allowRegression: Bool) {
+        let clamped: Int
+        if allowRegression {
+            clamped = min(max(0, current), steps)
+        } else {
+            clamped = min(max(currentStep, current), steps)
+        }
         currentStep = clamped
-        applyProgress(animated: animated)
+        
+        let progress = CGFloat(clamped) / CGFloat(max(steps, 1))
+        updateFillWidth(to: progress, animated: animated)
     }
-
-    private func applyProgress(animated: Bool) {
-        let p = Float(currentStep) / Float(steps)
-        super.setProgress(p, animated: animated)
-        progressTintColor = p >= 1.0 ? .systemGreen : .systemBlue
+    
+    // MARK: Internal
+    private func updateFillWidth(to progress: CGFloat, animated: Bool) {
+        fillWidthConstraint?.isActive = false
+        fillWidthConstraint = fillView.widthAnchor.constraint(
+            equalTo: trackView.widthAnchor,
+            multiplier: max(0, min(1, progress))
+        )
+        fillWidthConstraint?.isActive = true
+        
+        let animations = { self.layoutIfNeeded() }
+        if animated {
+            UIView.animate(
+                withDuration: 0.35,
+                delay: 0,
+                options: [.curveEaseInOut, .beginFromCurrentState],
+                animations: animations,
+                completion: nil
+            )
+        } else {
+            animations()
+        }
     }
 }

@@ -8,14 +8,20 @@
 import Foundation
 
 @MainActor
-protocol AttemptsView: AnyObject {
+protocol AttemptsView : AnyObject {
     func render(items: [AttemptDisplayItem], animate: Bool)
+    func showPublishResult()
 }
 
-import Foundation
-
 @MainActor
-protocol AttemptsPresenterProtocol: AnyObject {
+protocol AttemptsPresenterProtocol : AnyObject {
     func attach()
     func detach()
+    func publish()
+    func getStudnts()
+}
+
+protocol AttemptsProgressesModelProtocol {
+    func getAttemptsRequest() async throws -> EmptyResponse
+    func publishResultsRequest(_ request: PublishResultsRequest) async throws -> EmptyResponse
 }

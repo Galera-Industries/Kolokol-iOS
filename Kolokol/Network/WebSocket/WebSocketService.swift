@@ -32,13 +32,29 @@ public struct SnapshotData: Codable, Sendable {
 }
 
 public struct StudentEventData: Codable, Sendable {
-    public let attempt_id: UUID
-    public let user_id: String
-    public let first_name: String
-    public let last_name: String
+    public let attemptId: UUID
+    public let userId: String
+    public let firstName: String
+    public let lastName: String
     public let answered: Int
     public let total: Int
-    public let updated_at: Date
+    public let updatedAt: Date
+    public let tg: String
+    public let assessed: Bool
+    let result: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case attemptId = "attempt_id"
+        case userId = "user_id"
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case answered
+        case total
+        case updatedAt = "updated_at"
+        case tg = "telegram"
+        case assessed
+        case result
+    }
 }
 
 private struct EnvelopeOnly: Decodable { let type: String }
@@ -218,7 +234,7 @@ public actor WebSocketService {
         guard let current = socket, (client as AnyObject) === current else { return }
         
         // print("WS event:", event) // при желании включай лог
-        
+        print(event)
         switch event {
         case .connected(_):
             retryAttempt = 0
