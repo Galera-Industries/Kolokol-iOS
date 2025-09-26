@@ -11,7 +11,8 @@ enum CredentialsAssembly {
     static func build() -> UIViewController {
         let view = CredentialsViewController()
         let userDefaults = UserDefaultsManager()
-        let model = CredentialsModel(userDefaults: userDefaults)
+        let keychain = KeychainManager()
+        let model = CredentialsModel(userDefaults: userDefaults, keychain: keychain)
         let presenter = CredentialsPresenter(view: view, model: model)
         view.presenter = presenter
         return view

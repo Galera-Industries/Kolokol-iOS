@@ -14,7 +14,7 @@ final class AddQuestionCell: UITableViewCell {
     private let button: UIButton = {
         var cfg: UIButton.Configuration
         if #available(iOS 26.0, *) {
-            cfg = .prominentClearGlass()
+            cfg = .bordered()
         } else {
             cfg = .filled()
             cfg.baseBackgroundColor = UIColor(white: 1, alpha: 0.08)

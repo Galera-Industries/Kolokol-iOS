@@ -9,6 +9,6 @@ import Foundation
 
 struct Credentials {
     let name: String
-    let username: String
+    let lastname: String
     let tg: String
 }
