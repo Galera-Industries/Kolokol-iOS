@@ -44,8 +44,8 @@ struct Choice : Codable {
 }
 
 enum QuestionType: String, Codable {
-    case text
-    case multi
-    case single
+    case text = "text"
+    case multi = "multi"
+    case single = "single"
     case textKey = "text_key"
 }
