@@ -38,6 +38,7 @@ final class CodeEnteringPresenter: CodeEnteringPresenterProtocol {
                             view?.routeNext(completed, false) // студенты
                         }
                     } else {
+                        model.loadCredentialsForTeacher(email)
                         view?.routeNext(true, true) //  учителя
                     }
                 }

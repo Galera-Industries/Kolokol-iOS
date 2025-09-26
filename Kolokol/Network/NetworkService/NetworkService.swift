@@ -75,15 +75,15 @@ final class NetworkService: NetworkServiceProtocol {
     }
     
     // MARK: - Логика кэширования
-    private func cachedData(for request: URLRequest) -> Data? {
-        guard let urlString = request.url?.absoluteString else { return nil }
-        return cache.object(forKey: urlString as NSString) as Data?
-    }
-    
-    private func cache(data: Data, for request: URLRequest) {
-        guard let urlString = request.url?.absoluteString else { return }
-        cache.setObject(data as NSData, forKey: urlString as NSString)
-    }
+//    private func cachedData(for request: URLRequest) -> Data? {
+//        guard let urlString = request.url?.absoluteString else { return nil }
+//        return cache.object(forKey: urlString as NSString) as Data?
+//    }
+//    
+//    private func cache(data: Data, for request: URLRequest) {
+//        guard let urlString = request.url?.absoluteString else { return }
+//        cache.setObject(data as NSData, forKey: urlString as NSString)
+//    }
     
     // MARK: - Основной метод запроса
     func request<T: Decodable, K: Codable>(
@@ -106,14 +106,14 @@ final class NetworkService: NetworkServiceProtocol {
         }
         
         // Проверяем кэш
-        if method == .get && shouldCache, let cachedData = cachedData(for: request) {
-            do {
-                let decodedData = try JSONDecoder().decode(T.self, from: cachedData)
-                return decodedData
-            } catch {
-                throw NetworkError.decodingError
-            }
-        }
+//        if method == .get && shouldCache, let cachedData = cachedData(for: request) {
+//            do {
+//                let decodedData = try JSONDecoder().decode(T.self, from: cachedData)
+//                return decodedData
+//            } catch {
+//                throw NetworkError.decodingError
+//            }
+//        }
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
@@ -143,12 +143,26 @@ final class NetworkService: NetworkServiceProtocol {
             }
             
             // Кэшируем успешные GET
-            if method == .get && shouldCache {
-                cache(data: data, for: request)
-            }
+//            if method == .get && shouldCache {
+//                cache(data: data, for: request)
+//            }
             
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            
+            let iso8601FS = ISO8601DateFormatter()
+            iso8601FS.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+            let iso8601NoFS = ISO8601DateFormatter()
+
+            decoder.dateDecodingStrategy = .custom { d in
+                let c = try d.singleValueContainer()
+                let s = try c.decode(String.self)
+                if let date = iso8601FS.date(from: s) ?? iso8601NoFS.date(from: s) {
+                    return date
+                }
+                throw DecodingError.dataCorruptedError(in: c, debugDescription: "Invalid ISO8601 date: \(s)")
+            }
+            
             let decoded = try decoder.decode(T.self, from: data)
             if let prettyData = data.prettyJSON {
                 print(prettyData)

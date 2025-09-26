@@ -104,8 +104,8 @@ final class TestCell: UITableViewCell {
     }
     
     private func configureLabels() {
-        timerLabel = createLabel("00:45")
-        timerText = createLabel("до конца")
+        timerLabel = createLabel("")
+        timerText = createLabel("Тест не начался")
         participants = createLabel("24")
         participantsText = createLabel("участника")
         questions = createLabel("40")
@@ -146,21 +146,30 @@ final class TestCell: UITableViewCell {
         l.textColor = UIColor(hex: "FFFFFF", alpha: 1)
         l.text = text
         l.textAlignment = .left
+        l.numberOfLines = 0
         return l
     }
     
     func configure(_ test: TestModel) {
-        testStatusLabel.text = test.isStopped ? "Окончен" : "Идет"
-        testCode.text = getCodeString(test.code)
-        participants.text = String(test.participans)
+        if test.published {
+            testStatusLabel.text = test.isStopped ? "Окончен" : "Идет"
+        } else {
+            testStatusLabel.text = "Ждет публикации"
+        }
+        testCode.text = getCodeString(test.code6)
+        participants.text = String(test.participants)
         questions.text = String(test.questions)
-        startAt = test.publishedAt
-        deadlineAt = test.deadlineAt
-        updateNow()
-        startTimerIfNeeded()
+        if let publishedAt = test.publishedAt {
+            timerText.text = "до конца"
+            startAt = publishedAt
+            deadlineAt = test.deadlineAt
+            updateNow()
+            startTimerIfNeeded()
+        }
     }
     
-    private func getCodeString(_ n: Int) -> String {
+    private func getCodeString(_ str: String) -> String {
+        let n = Int(str) ?? 123456
         let firstThree = n / 1000
         let secondThree = n % 1000
         let code = String(firstThree) + " " + String(secondThree)

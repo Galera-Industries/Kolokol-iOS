@@ -19,8 +19,7 @@ final class CreateTestModel: CreateTestModelProtocol {
             return [:]
         }
         return [
-            "Authorization": "Bearer \(token)",
-            "Accept": "application/json"
+            "Authorization": "Bearer \(token)"
         ]
     }
     

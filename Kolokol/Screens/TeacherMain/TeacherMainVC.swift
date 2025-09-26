@@ -15,6 +15,7 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
     }
     private let testsTableView: UITableView = UITableView(frame: .zero, style: .insetGrouped)
     private let noTestsStackView: UIStackView = UIStackView()
+    private let refresh: UIRefreshControl = UIRefreshControl()
     
     private lazy var monthFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -76,14 +77,33 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
     }()
     
     override func viewDidLoad() {
+        navigationItem.setHidesBackButton(true, animated: false)
         presenter.viewLoaded()
         configureMainBackground()
         configureUI()
     }
     
+    func setCredentials(_ email: String, _ name: String) {
+        emailLabel.text = email
+        nameLabel.text = name
+    }
+    
     func showTests(_ tests: [TestModel]) {
         self.tests = tests
         testsTableView.reloadData()
+        refresh.endRefreshing()
+    }
+    
+    func addTest(_ test: TestModel) {
+        tests.insert(test, at: 0)
+        testsTableView.reloadData()
+    }
+    
+    func updateTest(_ test: TestModel) {
+        if let index = tests.firstIndex(where: {$0.id == test.id}) {
+            tests[index] = test
+            testsTableView.reloadSections(IndexSet(integer: index), with: .automatic)
+        }
     }
     
     func showError(_ error: String) {
@@ -98,6 +118,7 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         configurePersonInfoStackView()
         configureNoTestsStackView()
         configureTestsTableView()
+        configureRefresh()
     }
     
     private func configureNavbar() {
@@ -182,9 +203,19 @@ final class TeacherMainViewController: UIViewController, TeacherMainViewProtocol
         testsTableView.alpha = 0
     }
     
+    private func configureRefresh() {
+        refresh.tintColor = Colors.textPrimary
+        refresh.addTarget(self, action: #selector(onRefresh), for: .valueChanged)
+        
+        testsTableView.refreshControl = refresh
+    }
+    
+    @objc private func onRefresh() {
+        presenter.viewLoaded()
+    }
     
     @objc private func createTestButtonPressed() {
-        //navigationController?.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+        navigationController?.pushViewController(CreateTestAssembly.build(), animated: true)
     }
 }
 
@@ -202,6 +233,11 @@ extension TeacherMainViewController: UITableViewDelegate, UITableViewDataSource 
         let item = tests[indexPath.section]
         cell.configure(item)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let test = tests[indexPath.section]
+        navigationController?.pushViewController(CreateTestAssembly.build(test: test), animated: true)
     }
 }
 

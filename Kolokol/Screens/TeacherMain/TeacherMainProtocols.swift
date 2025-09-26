@@ -9,6 +9,7 @@ import Foundation
 
 protocol TeacherMainModelProtocol {
     func fetchTests() async throws -> [TestModel] // для поиска тестов преподавателя
+    func fetchCredentials() -> (String, String) // для загрузки почты имени
 }
 
 protocol TeacherMainPresenterProtocol {
@@ -17,5 +18,8 @@ protocol TeacherMainPresenterProtocol {
 
 protocol TeacherMainViewProtocol: AnyObject {
     func showTests(_ tests: [TestModel]) // для установки тестов в таблицу
+    func addTest(_ test: TestModel) // для добавления 1 теста в таблицу
+    func updateTest(_ test: TestModel) // для обновления состояния теста(количество вопросов, опубликован)
     func showError(_ error: String) // для вывода нужной ошибки на экран
+    func setCredentials(_ email: String, _ name: String)
 }

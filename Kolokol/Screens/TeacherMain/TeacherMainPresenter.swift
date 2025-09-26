@@ -7,16 +7,19 @@
 
 import Foundation
 
-final class TeacherMainPresenter: TeacherMainPresenterProtocol {
+final class TeacherMainPresenter: TeacherMainPresenterProtocol {    
     weak var view: TeacherMainViewProtocol?
     var model: TeacherMainModelProtocol
     
-    init(view: TeacherMainViewProtocol? = nil, model: TeacherMainModelProtocol) {
+    init(view: TeacherMainViewProtocol, model: TeacherMainModelProtocol) {
         self.view = view
         self.model = model
+        registerNotifications()
     }
     
     func viewLoaded() {
+        let (email,name) = model.fetchCredentials()
+        view?.setCredentials(email,name)
         Task {
             do {
                 let tests = try await model.fetchTests()
@@ -33,7 +36,12 @@ final class TeacherMainPresenter: TeacherMainPresenterProtocol {
             }
         }
     }
-
+    
+    private func registerNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(handleTestCreatedEvent), name: .testCreatedEvent, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleTestUpdatedEvent), name: .testUpdatedEvent, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleTestPublishedEvent), name: .testPublishedEvent, object: nil)
+    }
     
     private func mapError(_ error: Error) -> String {
         guard let networkError = error as? NetworkError else { return "Unknown error" }
@@ -61,9 +69,31 @@ final class TeacherMainPresenter: TeacherMainPresenterProtocol {
         }
     }
     
-}
-
-struct TestSection {
-    let header: String
-    let items: [TestModel]
+    @objc private func handleTestCreatedEvent(_ notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let test = userInfo["test"] as? TestModel {
+            view?.addTest(test)
+        }
+    }
+    
+    @objc private func handleTestUpdatedEvent(_ notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let test = userInfo["test"] as? TestModel {
+            view?.updateTest(test)
+        }
+    }
+    
+    @objc private func handleTestPublishedEvent(_ notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let test = userInfo["test"] as? TestModel {
+            view?.updateTest(test)
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .testCreatedEvent, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .testUpdatedEvent, object: nil)
+        NotificationCenter.default.removeObserver(self, name: .testPublishedEvent, object: nil)
+    }
+    
 }

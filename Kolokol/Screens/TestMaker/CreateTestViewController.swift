@@ -33,7 +33,7 @@ private enum OptionRow: Equatable {
 final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
     var presenter: CreateTestPresenterProtocol?
     
-    var testID: UUID?
+    var test: TestModel?
     private var isPublished = false
     
     var onSave: ((TestDraft) -> Void)?
@@ -92,8 +92,8 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
     
     private var totalRowsCount: Int { optionRows.count + rows.count + 1 }
     
-    init(testID: UUID? = nil) {
-        self.testID = testID
+    init(test: TestModel? = nil) {
+        self.test = test
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -344,18 +344,34 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 options: nil
             )
         }
-
-        return CreateTestRequest(
-            title: title,
-            published: publish,
-            deadlineAt: deadline,
-            ttl: ttlSec,
-            scoringMode: .equal,
-            resultsPublished: false,
-            answersVisible: false,
-            questions: qs,
-            testId: testID
-        )
+        
+        // да я кринжанул и что
+        if let id = test?.id {
+            let uuid = UUID(uuidString: id)
+            return CreateTestRequest(
+                title: title,
+                published: publish,
+                deadlineAt: deadline,
+                ttl: ttlSec,
+                scoringMode: .equal,
+                resultsPublished: false,
+                answersVisible: false,
+                questions: qs,
+                testId: uuid
+            )
+        } else {
+            return CreateTestRequest(
+                title: title,
+                published: publish,
+                deadlineAt: deadline,
+                ttl: ttlSec,
+                scoringMode: .equal,
+                resultsPublished: false,
+                answersVisible: false,
+                questions: qs,
+                testId: nil
+            )
+        }
     }
     
     private func presentAddTextQuestion() {
@@ -593,7 +609,7 @@ extension CreateTestViewController {
     }
 
     @objc private func stopTapped() {
-        guard let id = testID else { return }
+        guard let id = test else { return }
         let a = UIAlertController(title: "Остановить тест?", message: "Вы уверены, что хотите остановить приём попыток?", preferredStyle: .alert)
         a.addAction(UIAlertAction(title: "Отмена", style: .cancel))
         a.addAction(UIAlertAction(title: "Остановить", style: .destructive, handler: { [weak self] _ in
@@ -603,8 +619,9 @@ extension CreateTestViewController {
     }
 
     @objc private func resultsTapped() {
-        guard let id = testID else { return }
-        routeToProgress(for: id)
+        guard let id = test?.id,
+        let uuid = UUID(uuidString: id) else { return }
+        routeToProgress(for: uuid)
     }
 }
 
