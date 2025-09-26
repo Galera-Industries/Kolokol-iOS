@@ -25,7 +25,7 @@ final class CreateTestModel: CreateTestModelProtocol {
     }
     
     func create(_ request: CreateTestRequest) async throws -> CreateTestResponse {
-        let endpoint = Endpoints.createTest.rawValue
+        let endpoint = Endpoints.test.rawValue
         let resp: CreateTestResponse = try await NetworkService.shared.request(
             endpoint: endpoint,
             method: .post,
@@ -36,7 +36,7 @@ final class CreateTestModel: CreateTestModelProtocol {
     }
     
     func fetchEdit(id: UUID) async throws -> EditTestResponse {
-        let endpoint = Endpoints.createTest.rawValue + "/\(id.uuidString)/edit"
+        let endpoint = Endpoints.test.rawValue + "/\(id.uuidString)/edit"
         let resp: EditTestResponse = try await NetworkService.shared.request(
             endpoint: endpoint,
             method: .get,
@@ -47,7 +47,7 @@ final class CreateTestModel: CreateTestModelProtocol {
     }
 
     func update(id: UUID, _ request: CreateTestRequest) async throws -> EmptyResponse {
-        let endpoint = Endpoints.createTest.rawValue + "/\(id.uuidString)"
+        let endpoint = Endpoints.test.rawValue + "/\(id.uuidString)"
         let resp: EmptyResponse = try await NetworkService.shared.request(
             endpoint: endpoint,
             method: .put,
@@ -58,7 +58,7 @@ final class CreateTestModel: CreateTestModelProtocol {
     }
 
     func stop(id: UUID) async throws -> EmptyResponse {
-        let endpoint = Endpoints.createTest.rawValue + "/\(id.uuidString)/stop"
+        let endpoint = Endpoints.test.rawValue + "/\(id.uuidString)/stop"
         let resp: EmptyResponse = try await NetworkService.shared.request(
             endpoint: endpoint,
             method: .post,
