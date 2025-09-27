@@ -27,7 +27,7 @@ final class DetailedCell: UITableViewCell  {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func configure(_ review: Item) {
-        titleLabel.text = review.answer
+        titleLabel.text = review.text
         gradeLabel.text = "\(review.gotPoints)/\(review.maxPoints)"
     }
 

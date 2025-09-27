@@ -346,8 +346,15 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 order: idx,
                 options: nil
             )
-        }       
-        // да я кринжанул и что
+        }
+        
+        var assMode = AssignedMode.all
+        var assignees: [String] = []
+        if case let .some(ids) = currentSelection {
+            assignees = Array(ids)
+            assMode = .selected
+        }
+
         if let id = test?.id {
             let uuid = UUID(uuidString: id)
             return CreateTestRequest(
@@ -360,8 +367,8 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 answersVisible: false,
                 questions: qs,
                 testId: uuid,
-                assignees: [],
-                assignedMode: .all
+                assignees: assignees,
+                assignedMode: assMode
             )
         } else {
             return CreateTestRequest(
@@ -374,8 +381,8 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
                 answersVisible: false,
                 questions: qs,
                 testId: nil,
-                assignees: [],
-                assignedMode: .all
+                assignees: assignees,
+                assignedMode: assMode
             )
         }
     }
@@ -622,7 +629,7 @@ extension CreateTestViewController {
     func routeToProgress(for id: UUID) {
         // TODO: сюда в будущем роут на экран результатов
         // Пока заглушка:
-        print("routeToProgress: \(id)")
+        navigationController?.pushViewController(AttemptsProgressesAssembly.build(withTestID: id), animated: true)
     }
     
     private func switchToPublishedBottomBar() {

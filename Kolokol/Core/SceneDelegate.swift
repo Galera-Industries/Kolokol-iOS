@@ -16,9 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         let uiwindow = UIWindow(windowScene: windowScene)
         window = uiwindow
-        let keychain = KeychainManager()
-        keychain.save(key: KeychainManager.keyForSaveAccessToken, value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI0bXF1YVB4OE9vT3dFZUNoS05DZGw5RnV0ZGYyIiwiZW1haWwiOiJpc2FldjJrMThAZ21haWwuY29tIiwicm9sZSI6InN0dWRlbnQiLCJ0eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU5MTkyNTU2LCJpYXQiOjE3NTg5MzMzNTZ9.u0OA_15gs3xf3irNvUytTwbqsdybcXLD9d7QbEkZz14")
-        window?.rootViewController = UINavigationController(rootViewController: TestsListMainAssembly.build(role: "student"))
+        window?.rootViewController = UINavigationController(rootViewController: AuthorizationAssembly.build())
         window?.makeKeyAndVisible()
     }
 
@@ -52,4 +50,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
 }
-
