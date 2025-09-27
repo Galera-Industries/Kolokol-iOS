@@ -26,19 +26,37 @@ struct DetailedTestResult: Codable {
 struct Item: Codable {
     let questionId: UUID
     let order: Int
-    let comment: String
-    let answer: String
     let maxPoints: Int
     let gotPoints: Int
     let type: QuestionType
+    let text: String
+    let imageURL: URL?
+    let comment: String?
+    let studentAnswer: StudentAnswer?
     
     enum CodingKeys: String, CodingKey {
         case questionId = "question_id"
         case order
-        case comment
-        case answer
         case maxPoints = "max_points"
         case gotPoints = "got_points"
         case type
+        case text
+        case imageURL = "image_url"
+        case comment
+        case studentAnswer = "student_answer"
     }
+}
+
+struct StudentAnswer: Codable {
+    let valueText: String?
+    let selected: Int?
+    let selectedList: [Int]?
+    
+    enum CodingKeys: String, CodingKey {
+        case valueText = "value_text"
+        case selected
+        case selectedList = "selected_list"
+    }
+    
+    
 }

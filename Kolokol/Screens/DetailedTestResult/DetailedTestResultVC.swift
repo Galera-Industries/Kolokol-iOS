@@ -208,7 +208,7 @@ extension DetailedTestResultViewController: UITableViewDelegate, UITableViewData
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = reviews[indexPath.section]
-        navigationController?.present(CommentView(answer: item.answer, comment: item.comment), animated: true)
+        navigationController?.present(CommentView(answer: item.text, comment: item.comment ?? "Комментария пока нет"), animated: true)
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

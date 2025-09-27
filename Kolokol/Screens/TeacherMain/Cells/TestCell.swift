@@ -107,9 +107,9 @@ final class TestCell: UITableViewCell {
         timerLabel = createLabel("")
         timerText = createLabel("Тест не начался")
         participants = createLabel("")
-        participantsText = createLabel("участника")
+        participantsText = createLabel("участник")
         questions = createLabel("")
-        questionsText = createLabel("вопросов")
+        questionsText = createLabel("вопрос")
     }
     
     private func configureVerticalStackView() {
@@ -166,7 +166,9 @@ final class TestCell: UITableViewCell {
         }
         testCode.text = getCodeString(test.code6)
         participants.text = String(test.participants)
+        participantsText.text = "учатсник" + formatSuffix(test.participants)
         questions.text = String(test.questions)
+        questionsText.text = "вопрос" + formatSuffix(test.questions)
         if let publishedAt = test.publishedAt {
             if test.deadlineAt != nil {
                 timerText.text = test.isStopped ? "Завершен" : "до конца"
@@ -228,6 +230,17 @@ final class TestCell: UITableViewCell {
         }
         
         return dateFormatter.string(from: date)
+    }
+    
+    private func formatSuffix(_ n: Int) -> String {
+        if n % 10 == 0 || n % 10 == 5 || n % 10 == 6 || n % 10 == 7 || n % 10 == 8 || n % 10 == 9 {
+            return "ов"
+        } else if n % 10 == 1 {
+            return ""
+        } else if n % 10 == 2 || n % 10 == 3 || n % 10 == 4 {
+            return "а"
+        }
+        return ""
     }
     
     private func startTimerIfNeeded() {
