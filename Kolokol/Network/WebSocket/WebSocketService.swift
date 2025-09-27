@@ -40,7 +40,7 @@ public struct StudentEventData: Codable, Sendable {
     public let total: Int
     public let updatedAt: Date
     public let tg: String
-    public let assessed: Bool
+    public let aiCheckStatus: AICheckStatus
     let result: Int?
     
     enum CodingKeys: String, CodingKey {
@@ -52,7 +52,7 @@ public struct StudentEventData: Codable, Sendable {
         case total
         case updatedAt = "updated_at"
         case tg = "telegram"
-        case assessed
+        case aiCheckStatus = "ai_check_status"
         case result
     }
 }

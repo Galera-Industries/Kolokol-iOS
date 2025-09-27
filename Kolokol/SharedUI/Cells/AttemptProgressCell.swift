@@ -59,15 +59,18 @@ final class AttemptProgressCell: UITableViewCell {
         answered: Int,
         total: Int,
         animated: Bool,
-        assessed: Bool = false,
+        ai_check_status: AICheckStatus = .none,
         result: Int? = nil
     ) {
         nameLabel.text = fullName
         tgLabel.text = tg
-        if assessed {
+        if ai_check_status == .done {
             resultLabel.isHidden = false
         } else {
             resultLabel.isHidden = true
+        }
+        if ai_check_status == .in_progress {
+            
         }
         resultLabel.text = result?.description
         progressView.setSteps(total)
