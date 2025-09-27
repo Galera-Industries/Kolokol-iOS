@@ -40,7 +40,9 @@ final class DetailedTestResultPresenter: DetailedTestResultPresenterProtocol {
                     view?.showReviews(response.items)
                 }
             } catch {
-                
+                await MainActor.run {
+                    view?.stopRefresherIfNeeded()
+                }
             }
         }
     }

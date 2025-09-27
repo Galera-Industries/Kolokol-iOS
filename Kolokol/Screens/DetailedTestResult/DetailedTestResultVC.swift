@@ -35,9 +35,20 @@ final class DetailedTestResultViewController: UIViewController, DetailedTestResu
     }()
     
     
-    private var reviews: [Item] = []
+    private var reviews: [Item] = [] {
+        didSet {
+            if reviews.count == 0 {
+                noReviewsStackView.alpha = 1
+                reviewsTableView.alpha = 0
+            } else {
+                noReviewsStackView.alpha = 0
+                reviewsTableView.alpha = 1
+            }
+        }
+    }
     private let reviewsTableView: UITableView = UITableView()
     private let refresh: UIRefreshControl = UIRefreshControl()
+    private let noReviewsStackView: UIStackView = UIStackView()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,11 +59,8 @@ final class DetailedTestResultViewController: UIViewController, DetailedTestResu
     // MARK: - Protocol Methods
     
     func showReviews(_ reviews: [Item]) {
-        self.reviews = [
-            Item(questionId: UUID(), order: 1, comment: "YO", answer: "Great job", maxPoints: 10, gotPoints: 8, type: .text),
-            Item(questionId: UUID(), order: 1, comment: "YO", answer: "Great job", maxPoints: 10, gotPoints: 8, type: .text),
-            Item(questionId: UUID(), order: 1, comment: "YO", answer: "Great job", maxPoints: 10, gotPoints: 8, type: .text)
-        ]
+        self.reviews = reviews
+        reviewsTableView.reloadData()
         refresh.endRefreshing()
     }
     
@@ -61,14 +69,23 @@ final class DetailedTestResultViewController: UIViewController, DetailedTestResu
     }
     
     func setGrade(_ grade: Int) {
-        gradeLabel.text = "Итог: \(String(grade))"
+        if grade != -1 {
+            gradeLabel.text = "Итог: \(String(grade))"
+        }
+    }
+    
+    func stopRefresherIfNeeded() {
+        refresh.endRefreshing()
     }
     
     
     private func configureU() {
+        configureMainBackground()
         configureNavbar()
         configureStack()
         configureReviewsTableView()
+        configureRefresh()
+        configureNoReviewsStackView()
     }
     
     private func configureNavbar() {
@@ -118,8 +135,11 @@ final class DetailedTestResultViewController: UIViewController, DetailedTestResu
         reviewsTableView.dataSource = self
         reviewsTableView.delegate = self
         reviewsTableView.backgroundColor = .clear
-        reviewsTableView.separatorStyle = .singleLine
-        reviewsTableView.register(TestCell.self, forCellReuseIdentifier: TestCell.cellIdentifier)
+        reviewsTableView.separatorStyle = .none
+        reviewsTableView.register(DetailedCell.self, forCellReuseIdentifier: DetailedCell.reuse)
+        
+        reviewsTableView.rowHeight = 85
+        reviewsTableView.estimatedRowHeight = 85
         
         reviewsTableView.pinTop(stackView.bottomAnchor, 12)
         reviewsTableView.pinHorizontal(view)
@@ -131,6 +151,37 @@ final class DetailedTestResultViewController: UIViewController, DetailedTestResu
         refresh.addTarget(self, action: #selector(onRefresh), for: .valueChanged)
         
         reviewsTableView.refreshControl = refresh
+    }
+    
+    private func configureNoReviewsStackView() {
+        view.addSubview(noReviewsStackView)
+        let imageView = UIImageView()
+        imageView.image = UIImage(systemName: "text.page")?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = Colors.textSecondary
+        imageView.preferredSymbolConfiguration = .init(pointSize: 68, weight: .regular)
+        
+        let label = UILabel()
+        label.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        label.textColor = Colors.textSecondary
+        label.textAlignment = .center
+        label.numberOfLines = 4
+        label.text = "Отобразим здесь оценки и комментарии преподавателя"
+        
+        noReviewsStackView.addArrangedSubview(imageView)
+        noReviewsStackView.addArrangedSubview(label)
+        
+        noReviewsStackView.axis = .vertical
+        noReviewsStackView.spacing = 12
+        noReviewsStackView.alignment = .center
+        noReviewsStackView.alpha = 1
+        
+        noReviewsStackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            noReviewsStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            noReviewsStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            noReviewsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 100),
+            noReviewsStackView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -100)
+        ])
     }
     
     @objc private func onRefresh() {
@@ -146,6 +197,14 @@ extension DetailedTestResultViewController: UITableViewDelegate, UITableViewData
     func numberOfSections(in tableView: UITableView) -> Int { reviews.count }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { 1 }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat { 20 }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let v = UIView()
+        v.backgroundColor = .clear
+        return v
+    }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailedCell.reuse, for: indexPath) as? DetailedCell else { return UITableViewCell() }

@@ -23,7 +23,7 @@ final class DetailedTestResultModel: DetailedTestResultModelProtocol {
             throw NetworkError(message: "No access token in keychain") ?? .decodingError
         }
         
-        let response: DetailedTestResult = try await NetworkService.shared.request(endpoint: Endpoints.testsResults.rawValue + "\(testID)/results" , method: .get, body: nil as EmptyBody?, headers: ["Authorization": "Bearer \(accessToken)"])
+        let response: DetailedTestResult = try await NetworkService.shared.request(endpoint: Endpoints.testsResults.rawValue + "/\(testID)/results" , method: .get, body: nil as EmptyBody?, headers: ["Authorization": "Bearer \(accessToken)"])
         
         return response
     }

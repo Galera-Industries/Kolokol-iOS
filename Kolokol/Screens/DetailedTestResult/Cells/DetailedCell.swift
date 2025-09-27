@@ -41,8 +41,7 @@ final class DetailedCell: UITableViewCell  {
         titleLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         gradeLabel.textColor = .white
         gradeLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
-        gradeLabel.backgroundColor = Colors.surfaceSecondary
-        gradeLabel.layer.cornerRadius = 12
+        gradeLabel.backgroundColor = .clear
         gradeLabel.layer.masksToBounds = true
         gradeLabel.setContentHuggingPriority(.required, for: .horizontal)
         gradeLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -55,16 +54,19 @@ final class DetailedCell: UITableViewCell  {
         [container, titleLabel, gradeLabel].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
 
         NSLayoutConstraint.activate([
-            container.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            container.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            container.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
+            container.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            container.topAnchor.constraint(equalTo: contentView.topAnchor),
+            container.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            container.widthAnchor.constraint(equalToConstant: 362),
+            container.heightAnchor.constraint(equalToConstant: 85) // или равенство с contentView.heightAnchor
         ])
 
+        // Внутренние
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: container.topAnchor, constant: 12),
             titleLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
             titleLabel.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -12),
+
             gradeLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
             gradeLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
             titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: gradeLabel.leadingAnchor, constant: -12)

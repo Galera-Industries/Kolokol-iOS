@@ -21,4 +21,5 @@ protocol DetailedTestResultViewProtocol: AnyObject {
     func showReviews(_ reviews: [Item])
     func setName(_ name: String)
     func setGrade(_ grade: Int)
+    func stopRefresherIfNeeded()
 }
