@@ -19,7 +19,7 @@ final class CredentialsModel: CredentialsModelProtocol {
     func saveCredentials(_ credentials: Credentials) async throws -> CredentialsResponse {
         let request = CredentialsRequest(telegram: credentials.tg, firstName: credentials.name, lastName: credentials.lastname)
         
-        guard let accessToken = keychain.getUUID(key: KeychainManager.keyForSaveAccessToken) else {
+        guard let accessToken = keychain.getString(key: KeychainManager.keyForSaveAccessToken) else {
             throw NetworkError(message: "No access token in keychain") ?? NetworkError.decodingError
         }
         
@@ -27,7 +27,7 @@ final class CredentialsModel: CredentialsModelProtocol {
             endpoint: Endpoints.credentials.rawValue,
             method: .post,
             body: request as CredentialsRequest,
-            headers: ["Authorization": "Bearer \(accessToken.uuidString)"]
+            headers: ["Authorization": "Bearer \(accessToken)"]
         )
         
         userDefaults.saveCredentials(credentials)

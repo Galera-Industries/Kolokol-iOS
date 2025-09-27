@@ -98,6 +98,8 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
     init(test: TestModel? = nil) {
         self.test = test
         super.init(nibName: nil, bundle: nil)
+        guard let t = test else { return }
+        codeRowView.setCode(t.code6)
     }
     
     required init?(coder: NSCoder) {
