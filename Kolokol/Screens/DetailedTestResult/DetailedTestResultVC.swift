@@ -206,6 +206,11 @@ extension DetailedTestResultViewController: UITableViewDelegate, UITableViewData
         return v
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let item = reviews[indexPath.section]
+        navigationController?.present(CommentView(answer: item.answer, comment: item.comment), animated: true)
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: DetailedCell.reuse, for: indexPath) as? DetailedCell else { return UITableViewCell() }
         let item = reviews[indexPath.section]
