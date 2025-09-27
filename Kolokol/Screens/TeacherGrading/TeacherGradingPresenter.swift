@@ -1,8 +1,13 @@
-//
-//  TeacherGradingPresenter.swift
-//  Kolokol
-//
-//  Created by Арсений Потякин on 27.09.2025.
-//
-
 import Foundation
+
+final class TeacherGradingPresenter: TeacherGradingPresenterProtocol {
+    weak var view: TeacherGradingViewProtocol?
+    var model: TeacherGradingModelProtocol
+    var keychain: KeychainManagerProtocol
+
+    init(view: TeacherGradingViewProtocol, model: TeacherGradingModelProtocol, keychain: KeychainManagerProtocol) {
+        self.view = view
+        self.model = model
+        self.keychain = keychain
+    }
+}

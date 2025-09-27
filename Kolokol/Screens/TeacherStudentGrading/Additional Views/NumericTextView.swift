@@ -1,8 +1,12 @@
-//
-//  NumericTextView.swift
-//  Kolokol
-//
-//  Created by Арсений Потякин on 27.09.2025.
-//
+import SwiftUI
 
-import Foundation
+struct NumericTextView: View {
+    let value: Int
+    var body: some View {
+        Text("\(value)")
+            .font(.system(size: 24, weight: .semibold, design: .default))
+            .contentTransition(.numericText())
+            .animation(.default, value: value)
+            .padding(.horizontal, 2)
+    }
+}

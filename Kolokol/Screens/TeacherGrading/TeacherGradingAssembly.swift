@@ -1,8 +1,12 @@
-//
-//  TeacherGradingAssembly.swift
-//  Kolokol
-//
-//  Created by Арсений Потякин on 27.09.2025.
-//
+import UIKit
 
-import Foundation
+enum TeacherGradingAssembly {
+    static func build() -> UIViewController {
+        let view = TeacherGradingViewController()
+        let model = TeacherGradingModel()
+        let keychain = KeychainManager()
+        let presenter = TeacherGradingPresenter(view: view, model: model, keychain: keychain)
+        view.presenter = presenter
+        return view
+    }
+}

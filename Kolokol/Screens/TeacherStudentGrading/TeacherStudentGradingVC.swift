@@ -8,13 +8,17 @@
 import UIKit
 
 final class TeacherStudentGradingViewController: UIViewController, TeacherStudentGradingViewProtocol {
+
     var presenter: TeacherStudentGradingPresenterProtocol!
 
     private var answers: [String] = []
-    private var questions: [StudentQuestion] = []
+    private var questions: [String] = []
+    private var scores: [Int] = []
+    private var commentsPerTask: [String] = []
 
-    private var tableBottomToNextButton: NSLayoutConstraint?
-    private var tableBottomToKeyboard: NSLayoutConstraint?
+    private var inputBottomToNextButton: NSLayoutConstraint?
+    private var inputBottomToKeyboard: NSLayoutConstraint?
+
     private var selectedIndex: IndexPath?
     private weak var waitingTitleStack: UIStackView?
     private weak var countdownLabel: UILabel?
@@ -23,14 +27,37 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
     private var isWaitingAnimating = false
 
     // MARK: - UI Components
-    private lazy var timerLabel: UILabel = {
+    private lazy var studentNameLabel: UILabel = {
         let label = UILabel()
-        label.text = "00:59"
         label.textColor = Colors.textPrimary
         label.font = UIFont(name: "TTCommons-DemiBold", size: 40)
         label.textAlignment = .left
         label.numberOfLines = 1
         return label
+    }()
+
+    private lazy var gradingStepper = GradingStepperView()
+
+    private lazy var commentTextField: UITextField = {
+        let tf = UITextField()
+        tf.backgroundColor = Colors.surfaceSecondary
+        tf.layer.cornerRadius = 32
+        tf.clipsToBounds = true
+        tf.textColor = Colors.textPrimary
+        tf.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        tf.attributedPlaceholder = NSAttributedString(
+            string: "Комментарий",
+            attributes: [
+                .foregroundColor: Colors.textSecondary,
+                .font: UIFont(name: "TTCommons-DemiBold", size: 24) as Any
+            ]
+        )
+        tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        tf.leftViewMode = .always
+        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
+        tf.rightViewMode = .always
+        tf.addTarget(self, action: #selector(commentChanged(_:)), for: .editingChanged)
+        return tf
     }()
 
     private lazy var numbersCollectionView: UICollectionView = {
@@ -70,7 +97,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         tv.rowHeight = UITableView.automaticDimension
         tv.estimatedRowHeight = 120
         tv.keyboardDismissMode = .interactive
-        tv.register(TestAnswerCell.self, forCellReuseIdentifier: TestAnswerCell.reuseID)
+        tv.register(TestAnswerLabelCell.self, forCellReuseIdentifier: TestAnswerLabelCell.reuseID)
         tv.register(TestQuestionCell.self, forCellReuseIdentifier: TestQuestionCell.reuseID)
         tv.dataSource = self
         tv.delegate = self
@@ -87,84 +114,22 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         return label
     }()
 
-    private lazy var waitingOverlay: UIView = {
-        let v = UIView()
-        v.translatesAutoresizingMaskIntoConstraints = false
-        v.isHidden = true
-
-        let bg = UIImageView(image: UIImage(named: "background"))
-        bg.translatesAutoresizingMaskIntoConstraints = false
-        bg.contentMode = .scaleAspectFill
-        v.addSubview(bg)
-
-        let title = UILabel()
-        title.translatesAutoresizingMaskIntoConstraints = false
-        title.text = "Waiting room"
-        title.textColor = Colors.textPrimary
-        title.font = UIFont(name: "TTCommons-DemiBold", size: 40)
-        title.textAlignment = .center
-        title.numberOfLines = 1
-
-        let subtitle = UILabel()
-        subtitle.translatesAutoresizingMaskIntoConstraints = false
-        subtitle.text = "Ждем пока \nвсе подключатся"
-        subtitle.textColor = Colors.textSecondary
-        subtitle.font = UIFont(name: "TTCommons-DemiBold", size: 24)
-        subtitle.textAlignment = .center
-        subtitle.numberOfLines = 0
-
-        let stack = UIStackView(arrangedSubviews: [title, subtitle])
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .vertical
-        stack.alignment = .center
-        stack.spacing = 0
-        v.addSubview(stack)
-
-        let countdown = UILabel()
-        countdown.translatesAutoresizingMaskIntoConstraints = false
-        countdown.textColor = Colors.textPrimary
-        countdown.font = UIFont(name: "TTCommons-DemiBold", size: 140)
-        countdown.textAlignment = .center
-        countdown.alpha = 0
-        v.addSubview(countdown)
-
-        let whiteCover = UIView()
-        whiteCover.translatesAutoresizingMaskIntoConstraints = false
-        whiteCover.backgroundColor = .white
-        whiteCover.alpha = 0
-        v.addSubview(whiteCover)
-
-        bg.pinTop(v.topAnchor, 0)
-        bg.pinBottom(v.bottomAnchor, 0)
-        bg.pinLeft(v.leadingAnchor, 0)
-        bg.pinRight(v.trailingAnchor, 0)
-
-        stack.pinCenterX(v.centerXAnchor)
-        stack.pinCenterY(v.centerYAnchor)
-
-        countdown.pinCenterX(v.centerXAnchor)
-        countdown.pinCenterY(v.centerYAnchor)
-
-        whiteCover.pinTop(v.topAnchor, 0)
-        whiteCover.pinBottom(v.bottomAnchor, 0)
-        whiteCover.pinRight(v.trailingAnchor, 0)
-        whiteCover.pinLeft(v.leadingAnchor, 0)
-
-        self.waitingTitleStack = stack
-        self.countdownLabel = countdown
-        self.waitingWhiteCover = whiteCover
-
-        return v
-    }()
+    private var loadingCover: UIView?
+    private lazy var rings = LoadingRingsView()
 
     // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureBackground()
         configureNavbar()
         configureConstraints()
         setupDismissKeyboardGesture()
+
+        gradingStepper.onChange = { [weak self] newValue in
+            guard let self, let idx = self.selectedIndex?.item, idx < self.scores.count else { return }
+            self.scores[idx] = newValue
+        }
 
         NotificationCenter.default.addObserver(self,
             selector: #selector(handleKeyboardWillShow(_:)),
@@ -176,20 +141,64 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
+
+        presenter.viewDidLoad()
     }
+
 
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 
     // MARK: - Methods
-    
-    func showQuestions(_ questions: [StudentQuestion]) {
+
+    func setLoading(_ active: Bool) {
+        active ? showLoader() : hideLoader()
+    }
+
+    private func showLoader() {
+        guard loadingCover == nil else { return }
+
+        let cover = UIImageView()
+        cover.image = UIImage(named: "background")
+        cover.contentMode = .scaleAspectFill
+        cover.isUserInteractionEnabled = true
+        view.addSubview(cover)
+
+        cover.pin(view, 0)
+
+        rings.lineWidth = 4
+        rings.colors = [
+            UIColor.systemRed.withAlphaComponent(0.95),
+            UIColor.systemRed.withAlphaComponent(0.7),
+            UIColor.systemRed.withAlphaComponent(0.5)
+        ]
+
+        cover.addSubview(rings)
+        rings.pinCenter(cover)
+        rings.setWidth(40)
+        rings.setHeight(40)
+
+        loadingCover = cover
+        rings.start()
+    }
+
+    private func hideLoader() {
+        rings.stop()
+        loadingCover?.removeFromSuperview()
+        loadingCover = nil
+    }
+
+    func showQuestions(_ questions: [String]) {
         self.questions = questions
-        self.answers = Array(repeating: "", count: questions.count)
-        
+
+        self.answers = Array(repeating: "Some answerr", count: questions.count)
+
+        self.scores = Array(repeating: 0, count: questions.count)
+        self.commentsPerTask = Array(repeating: "", count: questions.count)
+
         selectedIndex = IndexPath(item: 0, section: 0)
-        questionLabel.text = questions.first?.text
+        questionLabel.text = questions[selectedIndex!.row]
 
         numbersCollectionView.reloadData()
         numbersCollectionView.layoutIfNeeded()
@@ -202,48 +211,26 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
                                hasAnswer: hasAnswer(at: index.item))
             }
         }
-        
+
+        gradingStepper.setValue(scores.first ?? 0, animated: false)
+        commentTextField.text = commentsPerTask.first ?? ""
+
         updateNextButtonTitle()
         tableView.reloadData()
     }
-    
+
+    func showStudentName(_ name: String) {
+        studentNameLabel.text = name
+    }
+
+    func showAnswers(_ answers: [String]) {
+        self.answers = answers
+    }
 
     func showError(_ error: String) {
         let ac = UIAlertController(title: "Ошибка", message: error, preferredStyle: .alert)
         ac.addAction(UIAlertAction(title: "OK", style: .default))
         present(ac, animated: true)
-    }
-
-    func showWaitingRoom() {
-        waitingOverlay.isHidden = false
-        waitingOverlay.alpha = 1.0
-        waitingWhiteCover?.alpha = 0.0
-
-        waitingTitleStack?.alpha = 1.0
-        waitingTitleStack?.transform = .identity
-
-        countdownLabel?.alpha = 0.0
-        countdownLabel?.transform = CGAffineTransform(scaleX: 0.2, y: 0.2)
-        countdownLabel?.text = nil
-
-        isWaitingAnimating = false
-    }
-
-    func hideWaitingRoom() {
-        guard !waitingOverlay.isHidden, !isWaitingAnimating else {
-            return
-        }
-        isWaitingAnimating = true
-
-        let collapseDuration: TimeInterval = 0.2
-        UIView.animate(withDuration: collapseDuration, delay: 0, options: [.curveEaseIn], animations: {
-            self.waitingTitleStack?.alpha = 0.0
-            self.waitingTitleStack?.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
-        }, completion: { _ in
-            self.playCountdownSequence {
-                self.finishWaitingOverlay()
-            }
-        })
     }
 
     // MARK: - Private Methods
@@ -301,15 +288,6 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         })
     }
 
-    private func finishWaitingOverlay() {
-        UIView.animate(withDuration: 1.0, delay: 0, options: [.curveEaseInOut], animations: {
-            self.waitingOverlay.alpha = 0.0
-        }, completion: { _ in
-            self.waitingOverlay.isHidden = true
-            self.isWaitingAnimating = false
-        })
-    }
-
     private func configureNavbar() {
         // title
         navigationItem.title = "Kollocol"
@@ -352,14 +330,14 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
     }
 
     private func configureConstraints() {
-        // timerLabel
-        view.addSubview(timerLabel)
-        timerLabel.pinTop(view.safeAreaLayoutGuide.topAnchor, 32)
-        timerLabel.pinLeft(view.leadingAnchor, 16)
+        // studentNameLabel
+        view.addSubview(studentNameLabel)
+        studentNameLabel.pinTop(view.safeAreaLayoutGuide.topAnchor, 32)
+        studentNameLabel.pinLeft(view.leadingAnchor, 16)
 
         // numbersCollectionView
         view.addSubview(numbersCollectionView)
-        numbersCollectionView.pinTop(timerLabel.bottomAnchor, 12)
+        numbersCollectionView.pinTop(studentNameLabel.bottomAnchor, 12)
         numbersCollectionView.pinLeft(view.leadingAnchor, 0)
         numbersCollectionView.pinRight(view.trailingAnchor, 0)
         numbersCollectionView.setHeight(60)
@@ -370,33 +348,37 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         nextButton.pinLeft(view.leadingAnchor, 16)
         nextButton.pinCenterX(view.centerXAnchor)
 
-        // tableView
+        // tableView (вопрос + ответ-лейбл)
         view.addSubview(tableView)
         tableView.pinTop(numbersCollectionView.bottomAnchor, 32)
         tableView.pinLeft(view.leadingAnchor, 16)
         tableView.pinRight(view.trailingAnchor, 16)
-        tableBottomToNextButton = tableView.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -32)
-        tableBottomToNextButton?.isActive = true
 
-        tableBottomToKeyboard = tableView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -16)
-        tableBottomToKeyboard?.isActive = false
+        // Stepper
+        view.addSubview(gradingStepper)
+        gradingStepper.pinTop(tableView.bottomAnchor, 24)
+        gradingStepper.pinLeft(view.leadingAnchor, 16)
+        gradingStepper.pinRight(view.trailingAnchor, 16)
+        gradingStepper.setHeight(70)
 
-        // waitingOverlay
-        view.addSubview(waitingOverlay)
-        waitingOverlay.pinTop(view.topAnchor, 0)
-        waitingOverlay.pinBottom(view.bottomAnchor, 0)
-        waitingOverlay.pinLeft(view.leadingAnchor, 0)
-        waitingOverlay.pinRight(view.trailingAnchor, 0)
+        // Comment
+        view.addSubview(commentTextField)
+        commentTextField.pinTop(gradingStepper.bottomAnchor, 0)
+        commentTextField.pinLeft(view.leadingAnchor, 16)
+        commentTextField.pinRight(view.trailingAnchor, 16)
+        commentTextField.setHeight(70)
+
+        inputBottomToNextButton = commentTextField.bottomAnchor.constraint(equalTo: nextButton.topAnchor, constant: -24)
+        inputBottomToNextButton?.isActive = true
+
+        inputBottomToKeyboard = commentTextField.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -16)
+        inputBottomToKeyboard?.isActive = false
     }
 
     private func selectNumber(at indexPath: IndexPath,
                               animated: Bool = true,
                               scrollPosition: UICollectionView.ScrollPosition = .centeredHorizontally) {
         guard indexPath.item < questions.count, !questions.isEmpty else { return }
-
-        if let oldItem = selectedIndex?.item, oldItem != indexPath.item {
-            reportAnsweredIfNeeded(for: oldItem)
-        }
 
         let old = selectedIndex
         selectedIndex = indexPath
@@ -415,7 +397,11 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         numbersCollectionView.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition)
         if let old = old, old != indexPath { numbersCollectionView.deselectItem(at: old, animated: false) }
 
-        questionLabel.text = questions[indexPath.item].text
+        questionLabel.text = questions[indexPath.row]
+
+        let idx = indexPath.item
+        if idx < scores.count { gradingStepper.setValue(scores[idx], animated: false) }
+        if idx < commentsPerTask.count { commentTextField.text = commentsPerTask[idx] }
 
         let answerIndexPath = IndexPath(row: 1, section: 0)
         tableView.reloadRows(at: [answerIndexPath], with: .none)
@@ -423,35 +409,14 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         updateNextButtonTitle()
     }
 
+
     private func updateNextButtonTitle() {
         guard let idx = selectedIndex else {
             nextButton.setTitle("Далее", for: .normal)
             return
         }
         let last = max(questions.count - 1, 0)
-        nextButton.setTitle(idx.item == last ? "Завершить" : "Далее", for: .normal)
-    }
-
-    private func presentFinishSheet() {
-        let alert = UIAlertController(title: nil, message: "Уверен, что хочешь завершить?", preferredStyle: .actionSheet)
-
-        let finish = UIAlertAction(title: "Закончить", style: .destructive) { [weak self] _ in
-            // TODO: обработка завершения
-            self?.presenter.submit()
-        }
-
-        let cancel = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
-
-        alert.addAction(finish)
-        alert.addAction(cancel)
-
-        if let pop = alert.popoverPresentationController {
-            pop.sourceView = view
-            pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.maxY - 1, width: 0, height: 0)
-            pop.permittedArrowDirections = []
-        }
-
-        present(alert, animated: true, completion: nil)
+        nextButton.setTitle(idx.item == last ? "Итог" : "Далее", for: .normal)
     }
 
     private func animateAlongsideKeyboard(_ note: Notification) {
@@ -469,13 +434,11 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         return !answers[index].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    // Отправляет сообщение на бек, что на вопрос с данным индексом был дан ответ
     private func reportAnsweredIfNeeded(for index: Int) {
         guard hasAnswer(at: index),
-              let id = UUID(uuidString: questions[index].id) else { return }
+              let id = UUID(uuidString: questions[index]) else { return }
         // TODO: - дергаем презентер
         print("Отправляем данные на бек что дан ответ на вопрос")
-        presenter.answer(id, answers[index].trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
     // MARK: - Actions
@@ -499,8 +462,9 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         }
         let lastIndex = max(questions.count - 1, 0)
         if current.item == lastIndex {
-            reportAnsweredIfNeeded(for: current.item)
-            presentFinishSheet()
+            // TODO: РОУТ НА ДРУГОЙ ЭКРАН ЧЕРЕЗ ПРЕЗЕНТЕР
+            print("РОУТ НА ДРУГОЙ ЭКРАН ЧЕРЕЗ ПРЕЗЕНТЕР")
+            return
         } else {
             reportAnsweredIfNeeded(for: current.item)
             let next = IndexPath(item: current.item + 1, section: 0)
@@ -510,16 +474,22 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
 
     @objc
     private func handleKeyboardWillShow(_ note: Notification) {
-        tableBottomToNextButton?.isActive = false
-        tableBottomToKeyboard?.isActive = true
+        inputBottomToNextButton?.isActive = false
+        inputBottomToKeyboard?.isActive = true
         animateAlongsideKeyboard(note)
     }
 
     @objc
     private func handleKeyboardWillHide(_ note: Notification) {
-        tableBottomToKeyboard?.isActive = false
-        tableBottomToNextButton?.isActive = true
+        inputBottomToKeyboard?.isActive = false
+        inputBottomToNextButton?.isActive = true
         animateAlongsideKeyboard(note)
+    }
+
+    @objc
+    private func commentChanged(_ tf: UITextField) {
+        guard let idx = selectedIndex?.item, idx < commentsPerTask.count else { return }
+        commentsPerTask[idx] = tf.text ?? ""
     }
 
     @objc
@@ -564,33 +534,13 @@ extension TeacherStudentGradingViewController: UITableViewDataSource, UITableVie
             cell.hostLabel(questionLabel, bottomPadding: 32)
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: TestAnswerCell.reuseID, for: indexPath) as! TestAnswerCell
-
+            let cell = tableView.dequeueReusableCell(withIdentifier: TestAnswerLabelCell.reuseID, for: indexPath) as! TestAnswerLabelCell
             let currentIndex = selectedIndex?.item ?? 0
             let currentText = (currentIndex < answers.count) ? answers[currentIndex] : ""
-
             cell.configure(font: questionLabel.font,
                            color: Colors.textSecondary,
                            alignment: questionLabel.textAlignment,
                            text: currentText)
-
-            cell.onTextChange = { [weak self] text in
-                guard let self = self,
-                      let idx = self.selectedIndex?.item,
-                      idx < self.answers.count else { return }
-                self.answers[idx] = text
-
-                let ip = IndexPath(item: idx, section: 0)
-                if let numberCell = self.numbersCollectionView.cellForItem(at: ip) as? TestNumberCell {
-                    let answered = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    numberCell.setHasAnswer(answered)
-                }
-            }
-
-            cell.onHeightChange = { [weak self] in
-                self?.tableView.performBatchUpdates(nil)
-            }
-
             return cell
         }
     }
