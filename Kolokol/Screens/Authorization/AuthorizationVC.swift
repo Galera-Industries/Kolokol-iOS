@@ -9,7 +9,7 @@ import UIKit
 
 final class AuthorizationViewController: UIViewController, AuthorizationViewProtocol {
 
-    var presenter: AuthorizationPresenterProtocol!
+    var presenter: AuthorizationPresenterProtocol?
 
     private let titleLabel: UILabel = UILabel()
     private let emailLabel: UILabel = UILabel()
@@ -147,7 +147,7 @@ final class AuthorizationViewController: UIViewController, AuthorizationViewProt
         if !checkEmailCorrectness() { showError("Input correct email!"); return }
         guard let email = emailTextField.text else { return }
         let fullEmail = email + "@edu.hse.ru"
-        presenter.sendEmailButtonPressed(withEmail: fullEmail)
+        presenter?.sendEmailButtonPressed(withEmail: fullEmail)
     }
     
 

@@ -64,11 +64,11 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
         appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
         
-        let navBar = navigationController!.navigationBar
-        navBar.standardAppearance = appearance
-        navBar.scrollEdgeAppearance = appearance
-        navBar.compactAppearance = appearance
-        navBar.tintColor = .white
+        let navBar = navigationController?.navigationBar
+        navBar?.standardAppearance = appearance
+        navBar?.scrollEdgeAppearance = appearance
+        navBar?.compactAppearance = appearance
+        navBar?.tintColor = .white
     }
     
     private func configureUI() {
@@ -119,19 +119,29 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard let sections = dataSource?.snapshot().sectionIdentifiers, section < sections.count else { return nil }
-        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: headerReuseID)!
-        view.contentView.backgroundColor = .clear
-        view.textLabel?.textColor = .white
-        view.textLabel?.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+        guard let sections = dataSource?.snapshot().sectionIdentifiers,
+              section < sections.count
+        else { return nil }
+
+        guard let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: headerReuseID) else {
+            return nil
+        }
+
+        header.contentView.backgroundColor = .clear
+        header.textLabel?.textColor = .white
+        header.textLabel?.font = UIFont(name: "TTCommons-DemiBold", size: 24)
+            ?? .systemFont(ofSize: 24, weight: .semibold)
+
         switch sections[section] {
         case .remaining:
-            view.textLabel?.text = "Осталось \(remainingCount) из \(totalCount)"
+            header.textLabel?.text = "Осталось \(remainingCount) из \(totalCount)"
         case .ready:
-            view.textLabel?.text = "Готовы"
+            header.textLabel?.text = "Готовы"
         }
-        return view
+
+        return header
     }
+
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat { 32 }
     

@@ -8,7 +8,7 @@
 import UIKit
 
 final class CredentialsViewController: UIViewController, CredentialsViewProtocol {
-    var presenter: CredentialsPresenterProtocol!
+    var presenter: CredentialsPresenterProtocol?
     
     private var kolokol: UIImageView = UIImageView()
     private let titleLabel: UILabel = UILabel()
@@ -200,7 +200,7 @@ final class CredentialsViewController: UIViewController, CredentialsViewProtocol
               let username = usernameTextField.text,
               let tg = tgTextField.text else { return }
         if name.isEmpty || username.isEmpty || tg.isEmpty { return }
-        presenter.saveButtonPressed(name, username, tg)
+        presenter?.saveButtonPressed(name, username, tg)
     }
     
     @objc private func dismissKeyboard() {

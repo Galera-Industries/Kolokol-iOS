@@ -1,7 +1,7 @@
 import UIKit
 
 final class TestsListMainViewController: UIViewController, TeacherMainViewProtocol {
-    var presenter: TeacherMainPresenterProtocol!
+    var presenter: TeacherMainPresenterProtocol?
     private var tests: [TestModel] = [] { // для учителя
         didSet {
             if tests.count == 0 {
@@ -89,7 +89,7 @@ final class TestsListMainViewController: UIViewController, TeacherMainViewProtoc
     
     override func viewDidLoad() {
         navigationItem.setHidesBackButton(true, animated: false)
-        presenter.viewLoaded()
+        presenter?.viewLoaded()
         configureMainBackground()
         configureUI()
     }
@@ -236,11 +236,11 @@ final class TestsListMainViewController: UIViewController, TeacherMainViewProtoc
     }
     
     @objc private func onRefresh() {
-        presenter.viewLoaded()
+        presenter?.viewLoaded()
     }
     
     @objc private func plusButtonPressed() {
-        presenter.routeNext()
+        presenter?.routeNext()
     }
 }
 

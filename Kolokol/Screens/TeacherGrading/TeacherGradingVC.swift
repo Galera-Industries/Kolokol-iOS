@@ -1,7 +1,7 @@
 import UIKit
 
 final class TeacherGradingViewController: UIViewController, TeacherGradingViewProtocol {
-    var presenter: TeacherGradingPresenterProtocol!
+    var presenter: TeacherGradingPresenterProtocol?
 
     // MARK: - UI Compontnes
     private let tableView: UITableView = {

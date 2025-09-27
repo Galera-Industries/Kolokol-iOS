@@ -8,8 +8,8 @@
 import UIKit
 
 final class TestViewController: UIViewController, TestViewProtocol {
-    var presenter: TestPresenterProtocol!
-    
+    var presenter: TestPresenterProtocol?
+
     private var answers: [String] = []
     private var questions: [StudentQuestion] = []
     
@@ -184,7 +184,7 @@ final class TestViewController: UIViewController, TestViewProtocol {
             object: nil
         )
 
-        presenter.viewDidLoad()
+        presenter?.viewDidLoad()
     }
     
     deinit {
@@ -450,7 +450,7 @@ final class TestViewController: UIViewController, TestViewProtocol {
         
         let finish = UIAlertAction(title: "Закончить", style: .destructive) { [weak self] _ in
             // TODO: обработка завершения
-            self?.presenter.submit()
+            self?.presenter?.submit()
         }
         
         let cancel = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
@@ -488,7 +488,7 @@ final class TestViewController: UIViewController, TestViewProtocol {
               let id = UUID(uuidString: questions[index].id) else { return }
         // TODO: - дергаем презентер
         print("Отправляем данные на бек что дан ответ на вопрос")
-        presenter.answer(id, answers[index].trimmingCharacters(in: .whitespacesAndNewlines))
+        presenter?.answer(id, answers[index].trimmingCharacters(in: .whitespacesAndNewlines))
     }
     
     // MARK: - Actions

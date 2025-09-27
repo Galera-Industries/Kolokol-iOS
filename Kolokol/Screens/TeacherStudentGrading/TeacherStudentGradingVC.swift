@@ -9,7 +9,7 @@ import UIKit
 
 final class TeacherStudentGradingViewController: UIViewController, TeacherStudentGradingViewProtocol {
 
-    var presenter: TeacherStudentGradingPresenterProtocol!
+    var presenter: TeacherStudentGradingPresenterProtocol?
 
     private var answers: [String] = []
     private var questions: [String] = []
@@ -142,7 +142,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
             object: nil
         )
 
-        presenter.viewDidLoad()
+        presenter?.viewDidLoad()
     }
 
 
@@ -198,12 +198,13 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         self.commentsPerTask = Array(repeating: "", count: questions.count)
 
         selectedIndex = IndexPath(item: 0, section: 0)
-        questionLabel.text = questions[selectedIndex!.row]
+        guard let selectedIndex = selectedIndex else { return }
+        questionLabel.text = questions[selectedIndex.row]
 
         numbersCollectionView.reloadData()
         numbersCollectionView.layoutIfNeeded()
 
-        if let index = selectedIndex {
+        if let index = self.selectedIndex {
             numbersCollectionView.selectItem(at: index, animated: false, scrollPosition: .centeredHorizontally)
             if let cell = numbersCollectionView.cellForItem(at: index) as? TestNumberCell {
                 cell.configure(number: index.item + 1,

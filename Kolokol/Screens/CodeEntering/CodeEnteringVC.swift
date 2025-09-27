@@ -9,7 +9,7 @@ import UIKit
 
 final class CodeEnteringViewController: UIViewController, CodeEnteringViewProtocol {
     
-    var presenter: CodeEnteringPresenterProtocol!
+    var presenter: CodeEnteringPresenterProtocol?
     
     private let titleLabel: UILabel = UILabel()
     private let codeLabel: UILabel = UILabel()
@@ -69,7 +69,7 @@ final class CodeEnteringViewController: UIViewController, CodeEnteringViewProtoc
         codeField.pinCenterX(view.centerXAnchor)
         
         codeField.onComplete = { [weak self] code in
-            self?.presenter.textFieldFilled(withStringCode: code)
+            self?.presenter?.textFieldFilled(withStringCode: code)
         }
     }
     

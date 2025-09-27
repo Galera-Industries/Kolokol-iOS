@@ -8,7 +8,7 @@
 import UIKit
 
 final class MainViewController: UIViewController, MainViewProtocol {
-    var presenter: MainPresenterProtocol!
+    var presenter: MainPresenterProtocol?
 
     private var codeFieldBottomToStartButton: NSLayoutConstraint?
     private var codeFieldBottomToKeyboard: NSLayoutConstraint?
@@ -121,7 +121,7 @@ final class MainViewController: UIViewController, MainViewProtocol {
     // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.viewLoaded()
+        presenter?.viewLoaded()
         configureMainBackground()
         configureNavbar()
         configureConstraints()
@@ -294,7 +294,7 @@ final class MainViewController: UIViewController, MainViewProtocol {
     private func startButtonPressed() {
         // TODO: - Отправить запрос на бек. В случае если неудача (код не существует) вызвать showError
         guard let code = code else { return }
-        presenter.startTest(withCode: code)
+        presenter?.startTest(withCode: code)
     }
 
     @objc
