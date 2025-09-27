@@ -198,12 +198,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         self.commentsPerTask = Array(repeating: "", count: questions.count)
 
         selectedIndex = IndexPath(item: 0, section: 0)
-<<<<<<< HEAD
-        guard let selectedIndex = selectedIndex else { return }
-        questionLabel.text = questions[selectedIndex.row]
-=======
         questionLabel.text = questions[selectedIndex!.row].text
->>>>>>> 4edf779 (oops)
 
         numbersCollectionView.reloadData()
         numbersCollectionView.layoutIfNeeded()
