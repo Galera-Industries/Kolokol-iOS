@@ -268,7 +268,7 @@ extension TestsListMainViewController: UITableViewDelegate, UITableViewDataSourc
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tests.isEmpty {
             let testResult = testsResults[indexPath.section]
-            //navigationController?.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+            navigationController?.pushViewController(DetailedTestResultAssembly.build(isStudent: true, testResult: testResult), animated: true)
         } else {
             let test = tests[indexPath.section]
             navigationController?.pushViewController(CreateTestAssembly.build(test: test), animated: true)

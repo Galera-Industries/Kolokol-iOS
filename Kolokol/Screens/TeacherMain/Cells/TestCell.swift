@@ -192,11 +192,16 @@ final class TestCell: UITableViewCell {
             questions.text = ""
             questionsText.text = ""
         } else {
+            if let submittedAt = testResult.submittedAt {
+                participants.text = "Сдано в"
+                participantsText.text = formatDate(submittedAt)
+            } else {
+                participants.text = "Не сдано"
+                participantsText.text = ""
+            }
             testStatusLabel.text = "Ждет оценивания"
             testCode.text = getCodeString(testResult.code6)
             timerText.text = "Нет оценки"
-            participants.text = "Не сдано"
-            participantsText.text = ""
             questions.text = ""
             questionsText.text = ""
         }

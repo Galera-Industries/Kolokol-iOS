@@ -34,7 +34,9 @@ final class MainPresenter: MainPresenterProtocol {
                     view?.routeToTestScreen(response.test.questions)
                 }
             } catch {
-                view?.showFailure()
+                await MainActor.run {
+                    view?.showFailure()
+                }
             }
         }
     }
