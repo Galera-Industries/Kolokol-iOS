@@ -12,7 +12,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
     var presenter: TeacherStudentGradingPresenterProtocol?
 
     private var answers: [String] = []
-    private var questions: [String] = []
+    private var questions: [Item] = []
     private var scores: [Int] = []
     private var commentsPerTask: [String] = []
 
@@ -189,7 +189,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         loadingCover = nil
     }
 
-    func showQuestions(_ questions: [String]) {
+    func showQuestions(_ questions: [Item]) {
         self.questions = questions
 
         self.answers = Array(repeating: "Some answerr", count: questions.count)
@@ -198,8 +198,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         self.commentsPerTask = Array(repeating: "", count: questions.count)
 
         selectedIndex = IndexPath(item: 0, section: 0)
-        guard let selectedIndex = selectedIndex else { return }
-        questionLabel.text = questions[selectedIndex.row]
+        questionLabel.text = questions[selectedIndex!.row].text
 
         numbersCollectionView.reloadData()
         numbersCollectionView.layoutIfNeeded()
@@ -398,7 +397,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         numbersCollectionView.selectItem(at: indexPath, animated: animated, scrollPosition: scrollPosition)
         if let old = old, old != indexPath { numbersCollectionView.deselectItem(at: old, animated: false) }
 
-        questionLabel.text = questions[indexPath.row]
+        questionLabel.text = questions[indexPath.row].text
 
         let idx = indexPath.item
         if idx < scores.count { gradingStepper.setValue(scores[idx], animated: false) }
@@ -437,8 +436,9 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
 
     private func reportAnsweredIfNeeded(for index: Int) {
         guard hasAnswer(at: index),
-              let id = UUID(uuidString: questions[index]) else { return }
+              let id = UUID(uuidString: questions[index].text) else { return }
         // TODO: - дергаем презентер
+        presenter?.sendReview(index, scores[index], commentTextField.text)
         print("Отправляем данные на бек что дан ответ на вопрос")
     }
 

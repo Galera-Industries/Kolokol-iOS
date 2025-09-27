@@ -8,12 +8,12 @@
 import Foundation
 
 protocol TeacherStudentGradingViewModelProtocol {
-    func fetchGradingData() async throws -> SomeAnswer
-    func sendReview() async throws -> Void
+    func fetchGradingData(testID: UUID) async throws -> DetailedTestResult
+    func sendReview(testUI: UUID, _ request: ReviewRequest) async throws -> EmptyResponse
 }
 
 protocol TeacherStudentGradingViewProtocol: AnyObject {
-    func showQuestions(_ questions: [String])
+    func showQuestions(_ questions: [Item])
     func showAnswers(_ answers: [String])
     func showStudentName(_ name: String)
     func showError(_ error: String)
@@ -22,7 +22,7 @@ protocol TeacherStudentGradingViewProtocol: AnyObject {
 
 protocol TeacherStudentGradingPresenterProtocol {
     func viewDidLoad()
-    func sendReview()
+    func sendReview(_ order: Int, _ points: Int, _ comment: String?)
 }
 
 // MARK: - DELETE AFTER ADDING BACKEND LOGIC
