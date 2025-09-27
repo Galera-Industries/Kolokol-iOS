@@ -27,6 +27,7 @@ struct Item: Codable {
     let questionId: UUID
     let order: Int
     let comment: String
+    let answer: String
     let maxPoints: Int
     let gotPoints: Int
     let type: QuestionType
@@ -35,6 +36,7 @@ struct Item: Codable {
         case questionId = "question_id"
         case order
         case comment
+        case answer
         case maxPoints = "max_points"
         case gotPoints = "got_points"
         case type
