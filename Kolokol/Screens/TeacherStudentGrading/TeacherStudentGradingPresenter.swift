@@ -11,22 +11,32 @@ final class TeacherStudentGradingPresenter: TeacherStudentGradingPresenterProtoc
     weak var view: TeacherStudentGradingViewProtocol?
     var model: TeacherStudentGradingViewModelProtocol
     var keychain: KeychainManagerProtocol
+    var testID: UUID
 
-    init(view: TeacherStudentGradingViewProtocol, model: TeacherStudentGradingViewModelProtocol, keychain: KeychainManagerProtocol) {
+    init(view: TeacherStudentGradingViewProtocol, model: TeacherStudentGradingViewModelProtocol, keychain: KeychainManagerProtocol, testID: UUID) {
         self.view = view
         self.model = model
         self.keychain = keychain
+        self.testID = testID
     }
-
+    
     func viewDidLoad() {
         Task {
             await MainActor.run { self.view?.setLoading(true) }
             do {
-                let data = try await model.fetchGradingData()
+                let data = try await model.fetchGradingData(testID: testID)
                 await MainActor.run {
-                    self.view?.showStudentName(data.name)
-                    self.view?.showQuestions(data.questions)
-                    self.view?.showAnswers(data.answer)
+                    //self.view?.showStudentName(data.name)
+                    self.view?.showQuestions(data.items)
+                    var answers: [String] = []
+                    for item in data.items {
+                        if let answer = item.studentAnswer {
+                            if let text = answer.valueText {
+                                answers.append(text)
+                            }
+                        }
+                    }
+                    self.view?.showAnswers(answers)
                     self.view?.setLoading(false)
                 }
             } catch {
@@ -38,12 +48,17 @@ final class TeacherStudentGradingPresenter: TeacherStudentGradingPresenterProtoc
         }
     }
 
-    func sendReview() {
+    func sendReview(_ order: Int, _ points: Int, _ comment: String?) {
         Task {
             await MainActor.run { self.view?.setLoading(true) }
-
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-
+            let data = try await model.fetchGradingData(testID: testID)
+            
+            if let index = data.items.firstIndex(where: {$0.order == order}) {
+                let questionId = data.items[index].questionId
+                let request = ReviewRequest(items: [ReviewDetail(questionId: questionId, points: points, comment: comment)])
+                _ = try await model.sendReview(testUI: testID, request)
+                
+            }
             await MainActor.run {
                 self.view?.setLoading(false)
                 // тут потом роут на следующий экран

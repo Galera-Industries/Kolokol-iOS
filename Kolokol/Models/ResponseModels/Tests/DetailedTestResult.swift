@@ -11,14 +11,18 @@ struct DetailedTestResult: Codable {
     let attemptId: UUID
     let testId: UUID
     let title: String
-    let answersVisible: Bool
+    let gradeScore: Int?
+    let gradeComment: String?
     let items: [Item]
+    let answersVisible: Bool
     
     enum CodingKeys: String, CodingKey {
         case attemptId = "attempt_id"
         case testId = "test_id"
         case title
         case answersVisible = "answers_visible"
+        case gradeScore = "grade_score"
+        case gradeComment = "grade_comment"
         case items
     }
 }
