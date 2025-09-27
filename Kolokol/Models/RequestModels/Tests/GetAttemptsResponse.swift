@@ -9,7 +9,7 @@ import Foundation
 
 struct GetAttemptsResponse: Codable {
     struct Item : Codable {
-        let assessed: String
+        let aiCheckStatus: AICheckStatus
         let answered: Int
         let attemptId: UUID
         let firstName: String
@@ -20,7 +20,7 @@ struct GetAttemptsResponse: Codable {
         let uid: String
         
         enum CodingKeys: String, CodingKey {
-            case assessed = "ai_check_status"
+            case aiCheckStatus = "ai_check_status"
             case answered
             case attemptId = "attempt_id"
             case firstName = "first_name"

@@ -109,7 +109,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
             else { return UITableViewCell() }
             let was = self.lastItemsById[attemptId]
             let changed = was?.answered != item.answered || was?.total != item.total || was?.fullName != item.fullName
-            cell.configure(fullName: item.fullName, tg: item.tg, answered: item.answered, total: item.total, animated: changed, assessed: item.assessed, result: item.result)
+            cell.configure(fullName: item.fullName, tg: item.tg, answered: item.answered, total: item.total, animated: changed, ai_check_status: item.aiCheckStatus, result: item.result)
             return cell
         }
         
@@ -142,8 +142,8 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
         
         totalCount = items.count
         
-        let remainingIDsSet = Set(items.filter { !$0.assessed }.map(\.attemptId))
-        let readyIDsSet = Set(items.filter { $0.assessed }.map(\.attemptId))
+        let remainingIDsSet = Set(items.filter { $0.aiCheckStatus != .done }.map(\.attemptId))
+        let readyIDsSet = Set(items.filter { $0.aiCheckStatus == .done }.map(\.attemptId))
         remainingCount = remainingIDsSet.count
         
         var newOrderRemaining = orderRemaining.filter { remainingIDsSet.contains($0) }

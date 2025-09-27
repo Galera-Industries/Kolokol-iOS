@@ -80,7 +80,7 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
             total: e.total,
             updatedAt: e.updatedAt,
             tg: e.tg,
-            assessed: e.assessed,
+            aiCheckStatus: e.aiCheckStatus,
             result: e.result
         )
         itemsById[e.attemptId] = item
@@ -122,7 +122,7 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
                         total: item.total,
                         updatedAt: Date(),
                         tg: item.tg,
-                        assessed: item.assessed == "done",
+                        aiCheckStatus: item.aiCheckStatus,
                         result: item.result
                     )
                     items.append(newItem)
@@ -148,7 +148,13 @@ struct AttemptDisplayItem: Hashable {
     let total: Int
     let updatedAt: Date
     let tg: String
-    let assessed: Bool
+    let aiCheckStatus: AICheckStatus
     let result: Int?
     var fullName: String { "\(lastName) \(firstName)" }
+}
+
+public enum AICheckStatus: Codable, Sendable {
+    case none
+    case done
+    case in_progress
 }

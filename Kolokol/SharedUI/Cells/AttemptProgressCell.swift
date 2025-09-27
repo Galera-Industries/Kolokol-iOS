@@ -14,6 +14,7 @@ final class AttemptProgressCell: UITableViewCell {
     private let nameLabel = AdjustedLabel()
     private let tgLabel = AdjustedLabel()
     private let resultLabel = AdjustedLabel()
+    private let ringView = LoadingRingsView()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -51,6 +52,22 @@ final class AttemptProgressCell: UITableViewCell {
         resultLabel.pinTop(progressView.topAnchor, 22)
         resultLabel.font = UIFont(name: "TTCommons-DemiBold", size: 24)
         resultLabel.textColor = .white
+        
+        ringView.lineWidth = 4
+        ringView.colors = [
+            UIColor.systemRed.withAlphaComponent(0.95),
+            UIColor.systemRed.withAlphaComponent(0.7),
+            UIColor.systemRed.withAlphaComponent(0.5)
+        ]
+
+        progressView.addSubview(ringView)
+        ringView.pinRight(progressView.trailingAnchor, 31)
+        ringView.pinCenterY(progressView.centerYAnchor)
+        ringView.setWidth(20)
+        ringView.setHeight(20)
+
+        ringView.start()
+        ringView.isHidden = true
     }
     
     func configure(
@@ -59,15 +76,21 @@ final class AttemptProgressCell: UITableViewCell {
         answered: Int,
         total: Int,
         animated: Bool,
-        assessed: Bool = false,
+        ai_check_status: AICheckStatus = .none,
         result: Int? = nil
     ) {
         nameLabel.text = fullName
         tgLabel.text = tg
-        if assessed {
+        if ai_check_status == .done {
             resultLabel.isHidden = false
+            ringView.isHidden = true
+        } else if ai_check_status == .in_progress {
+            resultLabel.isHidden = true
+            ringView.isHidden = false
+            ringView.start()
         } else {
             resultLabel.isHidden = true
+            ringView.isHidden = true
         }
         resultLabel.text = result?.description
         progressView.setSteps(total)
