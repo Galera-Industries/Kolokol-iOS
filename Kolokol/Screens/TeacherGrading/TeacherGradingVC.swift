@@ -171,17 +171,20 @@ extension TeacherGradingViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch rows[indexPath.row] {
         case .screenTitle(let text):
-            let cell = tableView.dequeueReusableCell(withIdentifier: ScreenTitleCell.reuseID, for: indexPath) as! ScreenTitleCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: ScreenTitleCell.reuseID, for: indexPath) as? ScreenTitleCell
+            else {return UITableViewCell() }
             cell.configure(title: text)
             return cell
 
         case .sectionHeader(let text):
-            let cell = tableView.dequeueReusableCell(withIdentifier: SectionHeaderCell.reuseID, for: indexPath) as! SectionHeaderCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: SectionHeaderCell.reuseID, for: indexPath) as? SectionHeaderCell
+            else { return UITableViewCell() }
             cell.configure(title: text)
             return cell
 
         case .student(let name, let mail, let grade):
-            let cell = tableView.dequeueReusableCell(withIdentifier: StudentGradingCell.reuseID, for: indexPath) as! StudentGradingCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: StudentGradingCell.reuseID, for: indexPath) as? StudentGradingCell
+            else { return UITableViewCell()}
             cell.configure(
                 name: name,
                 mail: mail,
@@ -190,7 +193,8 @@ extension TeacherGradingViewController: UITableViewDataSource {
             return cell
 
         case .spacer(let h):
-            let cell = tableView.dequeueReusableCell(withIdentifier: SpacerCell.reuseID, for: indexPath) as! SpacerCell
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: SpacerCell.reuseID, for: indexPath) as? SpacerCell
+            else {return UITableViewCell() }
             cell.configure(height: h)
             return cell
         }

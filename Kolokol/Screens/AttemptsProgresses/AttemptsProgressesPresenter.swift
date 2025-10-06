@@ -50,6 +50,7 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
             break
             
         case .snapshot(let snap):
+            break
             for e in snap.items {
                 upsert(from: e)
             }
@@ -95,7 +96,7 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
         Task {
             do {
                 let req = PublishResultsRequest(publish: true)
-                let resp = try await model?.publishResultsRequest(req, testId: testId)
+                _ = try await model?.publishResultsRequest(req, testId: testId)
                 await MainActor.run {
                     view?.showPublishResult()
                 }
@@ -121,7 +122,7 @@ final class AttemptsProgressesPresenter: AttemptsPresenterProtocol {
                         answered: item.answered,
                         total: item.total,
                         updatedAt: Date(),
-                        tg: item.tg,
+                        tg: item.tg ?? "",
                         aiCheckStatus: item.aiCheckStatus,
                         result: item.result
                     )
@@ -153,7 +154,7 @@ struct AttemptDisplayItem: Hashable {
     var fullName: String { "\(lastName) \(firstName)" }
 }
 
-public enum AICheckStatus: Codable, Sendable {
+public enum AICheckStatus: String, Codable, Sendable {
     case none
     case done
     case in_progress

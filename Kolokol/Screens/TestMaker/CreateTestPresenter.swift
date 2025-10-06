@@ -63,7 +63,7 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
                 do {
                     guard let uuid = UUID(uuidString: id),
                           let currentTest = current else { return }
-                    let response = try await model.update(id: uuid, request)
+                    _ = try await model.update(id: uuid, request)
                     if publish {
                         self.isPublished = true
                         view.setPublishedUI(true)
@@ -131,6 +131,7 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
                             createdAt: Date(),
                             updatedAt: Date()
                         )
+                        self.current = test
                         NotificationCenter.default.post(name: .testCreatedEvent, object: nil, userInfo: ["test": test])
                         view.showAlert(title: "Опубликовано", message: "Тест успешно создан и опубликован.")
                     } else {
@@ -149,6 +150,7 @@ final class CreateTestPresenter: CreateTestPresenterProtocol {
                             createdAt: Date(),
                             updatedAt: Date()
                         )
+                        self.current = test
                         NotificationCenter.default.post(name: .testCreatedEvent, object: nil, userInfo: ["test": test])
                         view.showAlert(title: "Сохранено", message: "Тест успешно создан.")
                     }

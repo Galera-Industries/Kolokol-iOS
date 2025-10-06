@@ -25,12 +25,24 @@ final class AttemptsProgressesModel : AttemptsProgressesModelProtocol {
     }
     
     func getAttemptsRequest(_ testId: UUID) async throws -> GetAttemptsResponse {
-        let response: GetAttemptsResponse = try await NetworkService.shared.request(
-            endpoint: Endpoints.test.rawValue + "/" + testId.uuidString + "/progress",
-            method: .get,
-            body: Optional<String>.none,
-            headers: authHeaders()
-        )
+//        let item = GetAttemptsResponse.Item(
+//            aiCheckStatus: .in_progress,
+//            answered: 2,
+//            attemptId: UUID(uuidString: "758702ec-6b85-47a5-91bb-d17f03f53db9")!,
+//            firstName: "Влад",
+//            lastName: "Панк",
+//            result: 12,
+//            tg: "@sundayti",
+//            total: 7,
+//            uid: "qYf56sPQukSEaeTZFfaCQHUfdxy2"
+//        )
+//    let response = GetAttemptsResponse(items: [item], stopped: false)
+    let response: GetAttemptsResponse = try await NetworkService.shared.request(
+        endpoint: Endpoints.test.rawValue + "/" + testId.uuidString + "/progress",
+        method: .get,
+        body: Optional<String>.none,
+        headers: authHeaders()
+    )
         return response
     }
     

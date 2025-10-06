@@ -16,7 +16,7 @@ final class KolokolTests: XCTestCase {
     
     override func setUpWithError() throws {
         authorizationModel = AuthorizationModel()
-        codeEnteringModel = CodeEnteringModel()
+        codeEnteringModel = CodeEnteringModel(userDefaults: )
     }
 
     override func tearDownWithError() throws {
@@ -37,7 +37,7 @@ final class KolokolTests: XCTestCase {
         let response = try await authorizationModel?.sendOtpRequest(request)
         XCTAssertNotNil(response)
         XCTAssertEqual(request.email, response?.email)
-        XCTAssert(response!.expiresAt > Date.now)
+        XCTAssert(response?.expiresAt ?? Date.now > Date.now)
     }
     
     func testOtpRequestFailed() async throws {
@@ -54,7 +54,7 @@ final class KolokolTests: XCTestCase {
         let otpRequest = OTPRequest(email: "v@edu.hse.ru")
         let response = try await authorizationModel?.sendOtpRequest(otpRequest)
         XCTAssertNotNil(response)
-        let request = ConfirmOTPRequest(email: response!.email, regToken: UUID(), otp: 12345)
+        let request = ConfirmOTPRequest(email: response?.email ?? "", regToken: UUID(), otp: 12345)
         do {
             _ = try await codeEnteringModel?.sendOtpConfirmationRequest(request)
             XCTFail("Got response, but should be error")
@@ -67,7 +67,7 @@ final class KolokolTests: XCTestCase {
         let otpRequest = OTPRequest(email: "v@edu.hse.ru")
         let response = try await authorizationModel?.sendOtpRequest(otpRequest)
         XCTAssertNotNil(response)
-        let request = ConfirmOTPRequest(email: response!.email, regToken: response!.regToken, otp: 0000)
+        let request = ConfirmOTPRequest(email: response?.email ?? "", regToken: response?.regToken ?? UUID(), otp: 0000)
         do {
             _ = try await codeEnteringModel?.sendOtpConfirmationRequest(request)
             XCTFail("Got response, but should be error")

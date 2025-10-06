@@ -141,7 +141,7 @@ final class NetworkService: NetworkServiceProtocol {
             guard !data.isEmpty else {
                 throw NetworkError.noData
             }
-            
+//            
             // Кэшируем успешные GET
 //            if method == .get && shouldCache {
 //                cache(data: data, for: request)

@@ -164,7 +164,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
         
         orderRemaining = newOrderRemaining
         orderReady = newOrderReady
-        if orderRemaining.isEmpty {
+        if orderRemaining.isEmpty && !orderReady.isEmpty {
             publishButton.isUserInteractionEnabled = false
             publishButton.isHidden = false
             UIView.animate(withDuration: 0.3, animations: {
@@ -188,7 +188,7 @@ final class AttemptsProgressesVC: UIViewController, AttemptsView, UITableViewDel
         
         let changedIds: [UUID] = newById.compactMap { id, new in
             guard let old = lastItemsById[id] else { return nil }
-            return (old.answered != new.answered || old.total != new.total || old.fullName != new.fullName) ? id : nil
+            return (old.answered != new.answered || old.total != new.total || old.fullName != new.fullName || old.aiCheckStatus != new.aiCheckStatus) ? id : nil
         }
         if #available(iOS 15.0, *) {
             let presentIds = Set(orderRemaining + orderReady)

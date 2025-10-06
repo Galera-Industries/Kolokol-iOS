@@ -100,6 +100,7 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         super.init(nibName: nil, bundle: nil)
         guard let t = test else { return }
         codeRowView.setCode(t.code6)
+        code6 = t.code6
     }
     
     required init?(coder: NSCoder) {
@@ -115,9 +116,9 @@ final class CreateTestViewController: UIViewController, CreateTestViewProtocol {
         navigationController?.navigationBar.barTintColor = .white
 
         configureUI()
-
-        codeRowView.setEnabled(false)
-
+        if code6 == "" {
+            codeRowView.setEnabled(false)
+        }
         rows = []
         durationPicker.countDownDuration = TimeInterval(ttlMinutesValue * 60)
 

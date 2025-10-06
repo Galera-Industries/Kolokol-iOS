@@ -548,7 +548,9 @@ extension TestViewController: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TestNumberCell.reuseID, for: indexPath) as! TestNumberCell
+        guard
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TestNumberCell.reuseID, for: indexPath) as? TestNumberCell
+        else { fatalError() }
         let answered = hasAnswer(at: indexPath.item)
         cell.configure(number: indexPath.item + 1,
                        selected: indexPath == selectedIndex,
@@ -573,13 +575,17 @@ extension TestViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: TestQuestionCell.reuseID, for: indexPath) as! TestQuestionCell
+            guard
+                let cell = tableView.dequeueReusableCell(withIdentifier: TestQuestionCell.reuseID, for: indexPath) as? TestQuestionCell
+            else { fatalError() }
             cell.hostLabel(questionLabel, bottomPadding: 32)
 
             cell.contentView.hideOnCapture()
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: TestAnswerCell.reuseID, for: indexPath) as! TestAnswerCell
+            guard
+                let cell = tableView.dequeueReusableCell(withIdentifier: TestAnswerCell.reuseID, for: indexPath) as? TestAnswerCell
+            else { fatalError() }
             let currentIndex = selectedIndex?.item ?? 0
             let currentText = (currentIndex < answers.count) ? answers[currentIndex] : ""
 

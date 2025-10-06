@@ -136,7 +136,9 @@ final class StudentsPickerViewController: UIViewController, UITableViewDataSourc
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let s = students[indexPath.row]
-        let cell = tableView.dequeueReusableCell(withIdentifier: StudentCheckCell.reuseId, for: indexPath) as! StudentCheckCell
+        guard
+            let cell = tableView.dequeueReusableCell(withIdentifier: StudentCheckCell.reuseId, for: indexPath) as? StudentCheckCell
+        else { fatalError() }
 
         let isChecked: Bool = {
             switch selection {

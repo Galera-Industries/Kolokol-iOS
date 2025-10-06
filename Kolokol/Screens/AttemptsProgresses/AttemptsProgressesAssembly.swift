@@ -13,6 +13,7 @@ enum AttemptsProgressesAssembly {
         let view = AttemptsProgressesVC()
         let keychain = KeychainManager()
         let presenter = AttemptsProgressesPresenter(view: view, testId: testID, keychain: keychain)
+        presenter.model = AttemptsProgressesModel(keychain: keychain)
         view.presenter = presenter
         return view
     }

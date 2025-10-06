@@ -198,7 +198,7 @@ final class TeacherStudentGradingViewController: UIViewController, TeacherStuden
         self.commentsPerTask = Array(repeating: "", count: questions.count)
 
         selectedIndex = IndexPath(item: 0, section: 0)
-        questionLabel.text = questions[selectedIndex!.row].text
+        questionLabel.text = questions[selectedIndex?.row ?? 0].text
 
         numbersCollectionView.reloadData()
         numbersCollectionView.layoutIfNeeded()
@@ -506,7 +506,8 @@ extension TeacherStudentGradingViewController: UICollectionViewDataSource, UICol
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TestNumberCell.reuseID, for: indexPath) as! TestNumberCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TestNumberCell.reuseID, for: indexPath) as? TestNumberCell
+        else { return UICollectionViewCell() }
         let answered = hasAnswer(at: indexPath.item)
         cell.configure(number: indexPath.item + 1,
                        selected: indexPath == selectedIndex,
@@ -531,11 +532,15 @@ extension TeacherStudentGradingViewController: UITableViewDataSource, UITableVie
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: TestQuestionCell.reuseID, for: indexPath) as! TestQuestionCell
+            guard
+                let cell = tableView.dequeueReusableCell(withIdentifier: TestQuestionCell.reuseID, for: indexPath) as? TestQuestionCell
+            else { fatalError() }
             cell.hostLabel(questionLabel, bottomPadding: 32)
             return cell
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: TestAnswerLabelCell.reuseID, for: indexPath) as! TestAnswerLabelCell
+            guard
+                let cell = tableView.dequeueReusableCell(withIdentifier: TestAnswerLabelCell.reuseID, for: indexPath) as? TestAnswerLabelCell
+            else { fatalError() }
             let currentIndex = selectedIndex?.item ?? 0
             let currentText = (currentIndex < answers.count) ? answers[currentIndex] : ""
             cell.configure(font: questionLabel.font,
