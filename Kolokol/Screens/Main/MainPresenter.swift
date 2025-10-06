@@ -31,7 +31,8 @@ final class MainPresenter: MainPresenterProtocol {
             do {
                 let response = try await model.startTest(code: code)
                 await MainActor.run {
-                    view?.routeToTestScreen(response.test.questions)
+                    guard let test = response.test else { return }
+                    view?.routeToTestScreen(test.questions)
                 }
             } catch {
                 await MainActor.run {

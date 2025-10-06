@@ -8,7 +8,7 @@
 import Foundation
 
 struct TestEnvelope: Codable {
-    let test: StartTestResponse
+    let test: StartTestResponse?
 }
 
 struct StartTestResponse: Codable {
@@ -18,7 +18,7 @@ struct StartTestResponse: Codable {
     let answersVisible: Bool
     let resultsPublished: Bool
     let scoringMode: ScoringMode
-    let timeLimitSec: Int
+    let timeLimitSec: Int?
     let deadlineAt: Date?
     let questions: [StudentQuestion]
 

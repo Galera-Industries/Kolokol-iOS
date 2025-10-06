@@ -26,6 +26,12 @@ public enum TestWSMessage: Sendable {
     }
 }
 
+// 1) Обёртка
+struct SnapshotEnvelope: Codable, Sendable {
+    let type: String
+    let data: SnapshotData
+}
+
 public struct SnapshotData: Codable, Sendable {
     public let total: Int
     public let items: [StudentEventData]
@@ -41,15 +47,14 @@ public struct StudentEventData: Codable, Sendable {
     public let updatedAt: Date
     public let tg: String
     public let aiCheckStatus: AICheckStatus
-    let result: Int?
-    
+    public let result: Int?
+
     enum CodingKeys: String, CodingKey {
         case attemptId = "attempt_id"
         case userId = "user_id"
         case firstName = "first_name"
         case lastName = "last_name"
-        case answered
-        case total
+        case answered, total
         case updatedAt = "updated_at"
         case tg = "telegram"
         case aiCheckStatus = "ai_check_status"
@@ -57,9 +62,8 @@ public struct StudentEventData: Codable, Sendable {
     }
 }
 
-private struct EnvelopeOnly: Decodable { let type: String }
-private struct SnapshotEnvelope: Decodable { let type: String; let data: SnapshotData }
 private struct StudentEnvelope: Decodable { let type: String; let data: StudentEventData }
+private struct EnvelopeOnly: Decodable { let type: String }
 
 // MARK: - Actor Service
 public actor WebSocketService {
@@ -276,6 +280,8 @@ public actor WebSocketService {
         guard let data = text.data(using: .utf8) else { return }
         
         if let type = (try? decoder.decode(EnvelopeOnly.self, from: data))?.type {
+            let d = "{\"attempt_id\":\"76c12f2f-d68e-4674-a599-2bd5c808d1ca\",\"user_id\":\"qYf56sPQukSEaeTZFfaCQHUfdxy2\",\"first_name\":\"Панкратов\",\"last_name\":\"Владислав\",\"telegram\":\"@sundayti\",\"answered\":2,\"total\":2,\"result\":0,\"updated_at\":\"2025-09-27T13:14:00.27740034Z\",\"ai_check_status\":\"done\"}]}"
+            print(d)
             switch type {
             case "snapshot":
                 do {
